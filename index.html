@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <script src="http://lib.baomitu.com/jquery/2.2.4/jquery.min.js"></script>
+  <script type="text/javascript" src="./jquery.encoder.js"></script>
+</head>
+<body>
+  <div id="app">Hello World!</div>
+
+  <script type="text/javascript">
+    var str = '<script>console.log(123);<\/script>';
+    str = $.encoder.encodeForHTML(str);
+    console.log($.encoder.encodeForHTMLAttribute('name', '<lushijie>', true));
+    console.log($.encoder.encodeForCSS('href', 'http://www.baidu.com', true));
+    // encodeForURL
+    // encodeForJavascript
+    $('#app').html(str)
+  </script>
+</body>
+</html>
