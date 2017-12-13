@@ -57,8 +57,8 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
 规则1适用于将不可信数据放到HTML标签内的地方，例如 div、p、b、td等常见标签。大多数的Web框架都有一个HTML转义的方法，来转义下面将要说到的字符，但是这种转义对于其他HTML上下文是绝对不够的，仍然需要执行其它规则。
 
 ```
- <body>...在插入这里之前转义不可信数据...</body>
- <div>...在插入这里之前转义不可信数据...</div>
+ <body>...在这里插入不可信数据之前进行转义...</body>
+ <div>...在这里插入不可信数据之前进行转义...</div>
  其他正常的 HTML 标签
 ```
 
@@ -78,9 +78,9 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
 规则2是将不可信数据放入典型的属性值里，如 width, name和value 等。这个规则不应该用于复杂属性：href、src、style，或者诸如onmouseover等事件处理程序。 作为HTML JavaScript数据，事件处理程序这类属性应该遵循规则3，这一点是非常重要的。
 
 ```
- <div attr=...在插入这里之前转义不可信数据...>内容</div>      属性值无引号包裹
- <div attr='...在插入这里之前转义不可信数据...'>内容</div>    属性值使用单引号包裹
- <div attr="...在插入这里之前转义不可信数据...">内容</div>    属性值使用双引号包裹
+ <div attr=...在这里插入不可信数据之前进行转义...>内容</div>      属性值无引号包裹
+ <div attr='...在这里插入不可信数据之前进行转义...'>内容</div>    属性值使用单引号包裹
+ <div attr="...在这里插入不可信数据之前进行转义...">内容</div>    属性值使用双引号包裹
 ```
 
 除了字母数字字符以外，使用 &#xHH;(或者可用的命名实体)格式来转义ASCII值小于256所有的字符，来防止切换出属性上下文。这个规则覆盖这么多字符的原因是开发者写属性时经常不把属性放到引号之中。相应的引号包裹的属性只能用相应的引号转义规则。没有引号的属性可能使用很多字符来分开：包括 [ 空格 ] %  * + , - / ; < = > ^ 和 |。
@@ -90,9 +90,9 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
  规则3涉及动态生成的 JavaScript 代码——script 块和事件处理程序属性中。将不可信数据放入此类代码片段的唯一安全位置：引号包裹的数值位置。在其他任何 JavaScript 上下文中包含不可信数据都是相当危险的，因为使用包含但是不限于分号、等号、空格、加号等字符来切换到一个执行上下文是非常容易的，所以请谨慎使用。
 
 ```
- <script>alert('...在插入这里之前转义不可信数据...')</script>                 写在引号包裹的字符串中
- <script>x='...在插入这里之前转义不可信数据...'</script>                      写在表达式中的引号中
- <div onmouseover="x='...在插入这里之前转义不可信数据...'"</div>              写在引号包裹的事件处理程序中
+ <script>alert('...在这里插入不可信数据之前进行转义...')</script>                 写在引号包裹的字符串中
+ <script>x='...在这里插入不可信数据之前进行转义...'</script>                      写在表达式中的引号中
+ <div onmouseover="x='...在这里插入不可信数据之前进行转义...'"</div>              写在引号包裹的事件处理程序中
 ```
 
 请注意，有些JavaScript函数不能安全的使用不可信数据作为输入——即便是进行JavaScript 转义！
@@ -175,9 +175,9 @@ var initData = JSON.parse(dataElement.textContent);
 规则4适用于将不可信数据插入到style样式表或者内敛style属性中。CSS出人意料的强大，可以用于许多攻击。因此，仅在属性值中使用不可信数据，而不要在其他位置使用，这一点非常的重要。应该避免将不可信数据插入到复杂的属性之中，如 URL、behavior以及自定义的-moz-binding类属性。也不应该把不可信数据插入到可执行JavaScript代码的IE表达式属性中。
 
 ```
- <style>selector { property : ...在插入这里之前转义不可信数据...; } </style>     属性值
- <style>selector { property : "...在插入这里之前转义不可信数据..."; } </style>   属性值
- <span style="property : ...在插入这里之前转义不可信数据...">text</span>         属性值
+ <style>selector { property : ...在这里插入不可信数据之前进行转义...; } </style>     属性值
+ <style>selector { property : "...在这里插入不可信数据之前进行转义..."; } </style>   属性值
+ <span style="property : ...在这里插入不可信数据之前进行转义...">text</span>         属性值
 ```
 
 请注意，有一些CSS上下文不能安全的将不可信数据作为输入——即使正确的使用了CSS转义！你要保证URL只能以http而不能以javascript开头，而且这些属性不能以 expression开头。例如：
@@ -196,7 +196,7 @@ var initData = JSON.parse(dataElement.textContent);
 规则5适用于将不可信参数作为HTTP GET 参数值时。
 
 ```
-<a href="http://www.somesite.com?test= ...在插入这里之前转义不可信数据..."> link </a>
+<a href="http://www.somesite.com?test= ...在这里插入不可信数据之前进行转义..."> link </a>
 ```
 
 除了字母数字字符以外，使用%HH格式来转义ASCII值小于256的所有字符。URL不应该出现在不可信数据之中，因为没有好办法通过转义来防止切换出URL上下文。所有的属性都应该使用引号包裹。没有引号包裹的属性可以使用许多字符来中断，包括 [space] % * + , - / ; < = > ^ 和 | 等。请注意，在这个上下文实体编码是无效的。
