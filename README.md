@@ -298,3 +298,13 @@ Content-Security-Policy: default-src: 'self'; script-src: 'self' static.domain.t
 
 这个HTTP响应头可以把内置到一些现代浏览器的XSS防御机制打开。这个头文件默认是启用的，它的作用是如果用户禁用了规则，可以重新设置启用。
 
+数据类型 | 上下文 | 代码示例 | 防御措施
+------------ | ------------- | ------------- | ------------- 
+字符串 | HTML结构体 | \<span>不可信数据\</span> | [HTML实体编码](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.231_-_HTML_Escape_Before_Inserting_Untrusted_Data_into_HTML_Element_Content)
+字符串 | 安全的HTML属性 | \<input type="text" name="fname" value="不可信数据">| [积极的HTML实体编码](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.232_-_Attribute_Escape_Before_Inserting_Untrusted_Data_into_HTML_Common_Attributes)<br>只将不可信数据放到白名单属性中（下面列出）<br>对background, id 和 name这些不安全属性进行严格校验
+字符串 | GET参数 | \<a href="/site/search?value=不可信数据">clickme\</a>| [URL编码](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.235_-_URL_Escape_Before_Inserting_Untrusted_Data_into_HTML_URL_Parameter_Values)
+字符串 | src或者href属性中的URL | \<a href="不可信URL">clickme\</a><br>\<iframe src="不可信URL" /> | 规范输入<br>URL验证<br>安全URL验证<br>只能是位于白名单中的HTTP和HTTPS协议（[避免JavaScript协议打开一个新窗口](https://www.owasp.org/index.php/Avoid_the_JavaScript_Protocol_to_Open_a_new_Window)）<br>属性编码
+字符串 | CSS值 |\<div style="width: 不可信数据;">Selection\</div> |[严格的结构验证](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.234_-_CSS_Escape_And_Strictly_Validate_Before_Inserting_Untrusted_Data_into_HTML_Style_Property_Values)<br>CSS十六进制编码<br>良好的CSS特性设计模式<br>
+String | JavaScript值 | \<script>var currentValue='不可信数据';\</script> <br>\<script>someFunction('不可信数据');\</script>|确保JavaScript变量使用引号包裹<br>JavaScript 16进制编码<br>JavaScript Unicode编码<br>避免反斜线编码（\"或\'或\\）<br>
+HTML | HTML结构体 | \<div>不可信 HTML\</div> | [HTML Validation (JSoup, AntiSamy, HTML Sanitizer)](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.236_-_Use_an_HTML_Policy_engine_to_validate_or_clean_user-driven_HTML_in_an_outbound_way)
+字符串 | DOM XSS | \<script>document.write("不可信输入: " + document.location.hash);\</script> | [基于DOM的XSS防御备忘](https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet)
