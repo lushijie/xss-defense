@@ -16,21 +16,21 @@
 
 鉴于浏览器解析HTML的方式，不同类型的插槽具有稍微不同的安全规则。将不可信数据放入到插槽时，需要采取一定的措施来确保数据不会从该插槽中跳到允许执行代码的上下文中。从某种意义上，这种方法将HTML文档视为参数化的数据库查询——数据保存在特定的位置，并通过转义与代码上下文隔离。
 
-本文列出了安全地将不可信数据放入常见的插槽的规则。基于大量的规则、已知的XSS攻击方法和大量的先进浏览器的测试，我们可以保证我们提出的规则是安全的。
+本文列出了安全地将不可信数据放入常见的插槽的规则。基于大量的规则、已知的XSS攻击方法和大量的先进浏览器的测试，我们可以保证这些规则是安全的。
 
-我们定义了插槽位置并对每个插槽提供了几个例子。为了确保安全，开发人员不应该在没有仔细分析的情况下就将不可信数据放入到其它插槽位置。浏览器解析是非常棘手的，许多看起来无害的角色可能在特定的上下文中起非常重要的作用。
+我们指定了插槽位置并对每个插槽提供了几个例子。为了确保安全，开发人员不应该在没有仔细分析的情况下就将不可信数据放入到其它插槽位置。浏览器解析是非常棘手的，许多看起来无害的角色可能在特定的上下文中起非常重要的作用。
 
-### 1.2 为什么不能对不可信数据只进行 HTML 实体编码？
+### 1.2 为什么不能只对不可信数据进行HTML实体编码？
 
-HTML实体编码对于用来编码放置在HTML标签中的不可信数据是可以的，例如\<div>标记内。对于使用引号包裹的属性，使用HTML实体编码对于不可信数据来说也是可行的。但是，如果你将不可信的数据放置到<script>标记的任何位置、onmouseover事件处理程序、CSS内部或者URL中，那么HTML实体编码就不起作用了,这时即便你到处使用HTML实体编码仍然可能遭受XSS攻击。你必须对特定HTML文档部分放置的不可信数据，使用编码语法进行处理。这也是我们下面所要讲的。
+HTML实体编码用来编码放置在HTML标签中的不可信数据是可以的，例如\<div>标记内。对于使用引号包裹的属性，使用HTML实体编码不可信数据也是可行的。但是，如果你将不可信的数据放置到<script>标记的任何位置、onmouseover事件处理程序、CSS内部或者URL中，那么HTML实体编码就不起作用了，这时即便你到处使用HTML实体编码仍然可能遭受XSS攻击。你必须对不同HTML文档部分放置的不可信数据，使用特定编码语法进行处理，这也是我们下面所要讲的。
 
  ### 1.3 你需要一个安全的编码库
 
-编写这些编码器并不是非常困难，但是也有不少隐藏的陷阱。例如，你可能会在 JavaScript 中试图使用像 \" 这样的快捷转义。但是,这样做是危险的，可能会被浏览器中的嵌套解析器误解。你也可能忘记转义转义字符，攻击者可以中和掉你的转义。OWASP建议使用一个专注安全的编码库，以确保这些规则正确实施。
+编写这些编码器并不是非常困难，但是也有不少隐藏的陷阱。例如，你可能会在JavaScript中试图使用像 \\" 这样的快捷转义，但是这样做是危险的，可能会被浏览器中的层级解析器误解。你也可能忘记转义转义字符，攻击者可以中和掉你的转义。OWASP建议使用一个专注安全的编码库，以确保这些规则正确实施。
 
-Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting Library](http://wpl.codeplex.com/)的编码库，并且ASP.NET Framework内置了[ValidateRequest](https://msdn.microsoft.com/en-us/library/ms972969.aspx#securitybarriers_topic6)函数，可以进行一定的清洗。
+Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting Library](http://wpl.codeplex.com/)的编码库，并且ASP.NET Framework内置了[ValidateRequest](https://msdn.microsoft.com/en-us/library/ms972969.aspx#securitybarriers_topic6)函数，可以进行一定程度的清洗。
 
- OWASP的[OWASP Java Encoder Project](https://www.owasp.org/index.php/OWASP_Java_Encoder_Project)为Java提供了高性能的编码库。
+ OWASP的[OWASP Java Encoder Project](https://www.owasp.org/index.php/OWASP_Java_Encoder_Project)是为Java提供的高性能编码库。
 
 ## 2 XSS防御规则
 
