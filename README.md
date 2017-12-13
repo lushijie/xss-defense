@@ -114,3 +114,165 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
 在 Web 2.0 世界中，需要在Javascript上下文中使用程序动态生成数据的需求是很常见的。一种策略是使用Ajax 调用来获取数据，但是在有些情况下是不可以的。通常我们加载一个JSON初始块来在一个位置存储多种数值。在不破坏值的格式和内容情况下，对这些数据进行转义不是不可能的，但是却相当的棘手。
 
 确保响应的Content-Type头是application/json而不是application/html。这样可以让浏览器不误解上下文并执行插入的脚本。
+
+不好的HTTP响应：
+
+```
+   HTTP/1.1 200
+   Date: Wed, 06 Feb 2013 10:28:54 GMT
+   Server: Microsoft-IIS/7.5....
+   Content-Type: text/html; charset=utf-8 <-- 不好
+   ....
+   Content-Length: 373
+   Keep-Alive: timeout=5, max=100
+   Connection: Keep-Alive
+   {"Message":"No HTTP resource was found that matches the request URI 'dev.net.ie/api/pay/.html?HouseNumber=9&AddressLine
+   =The+Gardens<script>alert(1)</script>&AddressLine2=foxlodge+woods&TownName=Meath'.","MessageDetail":"No type was found
+   that matches the controller named 'pay'."}   <-- 脚本中的alert会执行
+```
+
+好的HTTP响应：
+
+```
+   HTTP/1.1 200
+   Date: Wed, 06 Feb 2013 10:28:54 GMT
+   Server: Microsoft-IIS/7.5....
+   Content-Type: application/json; charset=utf-8 <--好
+   .....
+   .....
+```
+一个常见的错误示例如下：
+
+```
+   <script>
+     var initData = <%= data.to_json %>; // 不要这样做除非使用下列的一种技术对数据进行了编码
+   </script>
+```
+#### 2.4.1.1 JSON 实体编码
+
+JSON编码规则可以在[输出编码规则摘要](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#Output_Encoding_Rules_Summary)中找到。请注意，我们将无法使用CSP 1.0提供的XSS保护。
+
+#### 2.4.1.2 HTML 实体编码 
+
+这种技术的优点是，html 实体转义得到了广泛的支持，有助于在不跨越上下文边界的情况下从服务端代码中分离数据。把JSON块作为普通元素放到页面上，然后解析 innnerHTML来获取内容。读取数据的Javascript存在于外部文件中，从而使得CSP实施起来更加的容易。
+
+```
+<div id="init_data" style="display: none">
+    <%= html_escape(data.to_json) %>
+ </div>
+```
+
+```
+ // 外部的js文件
+ var dataElement = document.getElementById('init_data');
+ // 解码并解析div的内容
+ var initData = JSON.parse(dataElement.textContent);
+```
+
+一个在JavaScript中转义并直接解转义的替代方案是，在数据发送到浏览器之前，在服务端对JSON数据进行处理，把 '<'转义成为 '\u003c' 。
+
+### 2.5 规则4，将不可信数据插入到HTML Style属性值之前，进 CSS转义并严格验证
+
+规则4适用于将不可信数据插入到style样式表或者style标签中。CSS出人意料的强大，可以用于许多攻击。因此，仅在属性值中使用不可信数据，而不在其他位置使用，这一点非常的重要。应该避免将不可信数据插入到复杂的属性之中，如 URL、behavior以及自定义的-moz-binding类属性。也不应该把不可信数据插入到克执行JavaScript代码的IE表达式属性中。
+
+```
+ <style>selector { property : ...在插入这里之前转义不可信数据...; } </style>     属性值
+ <style>selector { property : "...在插入这里之前转义不可信数据..."; } </style>   属性值
+ <span style="property : ...在插入这里之前转义不可信数据...">text</span>         属性值
+```
+
+请注意，有一些CSS上下文不能安全的将不可信数据作为输入——即使正确的使用了CSS转义！你要保证URL只能以 http 而不能以 javascript 开始，而且这些属性不能以 expression 开头。例如：
+
+```
+ { background-url : "javascript:alert(1)"; }  // 其他的URL类属性也是如此
+ { text-size: "expression(alert('XSS'))"; }   // 只出现在IE中
+```
+
+除了字母数字字符以外，使用  \HH 格式来转义ASCII值小于256的所有字符。不要使用像 \" 这样的快捷转义方式，因为引号字符可能与先运行的HTML属性解析器相匹配，这些快捷转义方式也容易受到攻击者 "把转义字符进行转义" ，例如攻击者发送了一个 \"，这样把引号转义之后就成了 \\"，最终允许了引号的存在。
+
+如果属性是被引号包裹的，需要使用对应的引号结束。所有的属性都应该放置到引号之中，但是程序应该具有健壮的编码来防御XSS，毕竟不可信数据可能没有放置到引号之中。未加引号的属性可以被很多字符截断，包括 [ 空格 ] % * + , - / ; < = > ^ 和 |。另外，</ style>标记将关闭样式块，即使它位于带引号的字符串中，因为HTML解析器在JavaScript解析器之前运行。请注意，对于无论引号包裹还是没有引号包裹的属性，我们建议积极的CSS编码和验证来阻止XSS攻击。
+
+### 2.6 规则5，将不可信数据插入到 HTML URL 参数值之前， 进行 URL 转义
+
+规则5适用于将不可信参数作为HTTP GET 参数值时。
+
+```
+<a href="http://www.somesite.com?test= ...在插入这里之前转义不可信数据..."> link </ a>   
+```
+
+除了字母数字字符以外，使用%HH格式来转义ASCII值小于256的所有字符。URL不应该出现在不可信数据之中，因为没有好办法通过转义来防止切换出URL上下文。所有的属性都应该使用引号包裹。没有引号包裹的属性可以使用许多字符来中断，包括 [space] % * + , - / ; < = > ^ 和 | 等。请注意，在这个上下文实体编码是无用的。
+
+警告：不要使用URL编码对完整或相对URL进行编码！如果不信任的输入是要放入href，src或其他基于URL的属性，应该验证它是否指向一个其他协议，特别是JavaScript链接。然后应该像其他任何数据一样，根据相应的上下文对URL进行编码。例如，href属性中的URL应该是使用属性编码的。例如：
+
+```
+String userURL = request.getParameter( "userURL" )
+ boolean isValidURL = Validator.IsValidURL(userURL, 255); 
+ if (isValidURL) {  
+     <a href="<%=encoder.encodeForHTMLAttribute(userURL)%>">link</a>
+ }
+```
+
+### 2.7 规则6，使用专业库来清洗HTML标记
+
+如果程序处理html标记时，不可信的输入包含html，可能非常的难以验证。编码也是非常困难的，因为它会转义应该出现在输入中的所有标签。因此你需要一个可以解析和清洗HTML格式文本的库。在OWASP有几个简单易用的版本：
+
+HtmlSanitizer - https://github.com/mganss/HtmlSanitizer
+
+一个开源的.NET库。HTML使用白名单方式清理的。所有允许的标签和属性都是可以配置的。该库使用[OWASP XSS过滤漏洞备忘](https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet)进行过单元测试：
+
+```
+ var sanitizer = new HtmlSanitizer();
+ sanitizer.AllowedAttributes.Add("class");
+ var sanitized = sanitizer.Sanitize(html);
+```
+
+OWASP Java HTML Sanitizer - OWASP Java HTML Sanitizer Project
+
+```
+  import org.owasp.html.Sanitizers;
+  import org.owasp.html.PolicyFactory;
+  PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
+  String cleanResults = sanitizer.sanitize("<p>Hello, <b>World!</b>");
+```
+
+有关OWASP Java HTML清洗程序策略构建的更多信息，请参阅 https://github.com/OWASP/java-html-sanitizer
+
+Ruby on Rails 清理器 - http://api.rubyonrails.org/classes/ActionView/Helpers/SanitizeHelper.html
+
+SanitizeHelper模块提供了一套用于清理不需要的HTML元素的文本的方法。
+
+```
+  <%= sanitize @comment.body, tags: %w(strong em a), attributes: %w(href) %>   
+```
+
+其他提供HTML清洗的库包括：
+
+PHP HTML Purifier - http://htmlpurifier.org/
+JavaScript/Node.js Bleach - https://github.com/ecto/bleach
+Python Bleach - https://pypi.python.org/pypi/bleach
+
+### 2.8 规则 7，防止 DOM-based XSS
+
+有关基于DOM的XSS的详细信息，以及针对此类XSS缺陷的防范，请参阅[基于DOM的XSS预防备忘单](https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet)的OWASP文章。
+
+### 2.9 加分规则1，使用 HTTPOnly Cookie 标记
+
+正如你所看到的，防止应用程序中的所有XSS缺陷是困难的。为了帮助减轻XSS漏洞对网站的影响，OWASP还建议您在session Cookie上设置HTTPOnly标志，并为那些不能被JavaScript访问的自定义cookie也设置这个标志。这个cookie标志通常在.NET应用程序中默认处于打开状态，但在其他语言中，必须手动设置它。有关HTTPOnly cookie标志的更多详细信息，包括它的作用，以及如何使用它，请参阅OWASP上[HTTPOnly](https://www.owasp.org/index.php/HTTPOnly)的文章。
+
+### 2.10 加分规则2，实施内容安全策略
+
+还有一个很好的复杂的解决方案（内容安全策略）可以减轻XSS漏洞的影响。这是一个浏览器端机制，允许你为Web应用程序的客户端资源（例如JavaScript，CSS，图像等）创建源白名单。CSP通过特殊的HTTP标头指示浏览器仅执行或呈现来自这些源的资源。比如这个CSP：
+
+```
+Content-Security-Policy: default-src: 'self'; script-src: 'self' static.domain.tld
+```
+将指示Web浏览器仅加载来自页面源的资源和static.domain.tld下的JavaScript源代码文件。有关内容安全策略的更多详细信息，包括其内容，以及如何使用它，请参阅OWASP的关于[Content_Security_Policy](https://www.owasp.org/index.php/Content_Security_Policy)文章。
+
+### 2.11 加分规则3，使用自动转义模板系统
+
+许多Web应用程序框架提供了自动的上下文转义功能，如[AngularJS严格的上下文转义](https://docs.angularjs.org/api/ng/service/$sce)和[Go模板](https://golang.org/pkg/html/template/)，请尽可能使用这些技术。
+
+### 2.12 加分规则4，使用X-XSS-Protection响应头
+
+这个HTTP响应头可以把内置到一些现代浏览器的XSS防御机制打开。这个头文件默认是启用的，它的作用是如果用户禁用了规则，可以重新设置启用。
+
