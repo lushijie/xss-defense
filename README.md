@@ -105,12 +105,12 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
 ```
 除字母数字字符外，请使用\xHH格式转义ASCII码小于256的所有字符，以防止从数据值切换到Script上下文或者进入其他属性。不要使用像 \\" 这样的快捷转义方式，因为引号字符可能与先运行的HTML属性解析器相匹配，这些快捷转义方式也容易受到攻击者 "把转义字符进行转义" ，例如攻击者发送了一个 \\"，这样把引号转义之后就成了 \\\\"，最终允许了引号的存在。
 
-如果一个事件处理程序使用引号包裹，就需要一个与之对应的引号结束。但是我们故意将这个规则定的相当宽泛，因为事件处理程序常不加引号。未加引号的属性可以被很多字符截断，包括 [ 空格 ] % * + , - / ; < = > ^ 和 |。此外，</ script>结束标记将关闭脚本块，即使它位于带引号的字符串内，因为HTML解析器在JavaScript解析器之前运行。
+如果一个事件处理程序使用引号包裹，就需要一个与之对应的引号结束。我们故意将这个规则定的相当宽泛，是因为事件处理程序常不加引号。未加引号的属性可以被很多字符截断，包括 [ 空格 ] % * + , - / ; < = > ^ 和 |。此外，\</script>结束标记将关闭脚本块，即使它位于带引号的字符串内，因为HTML解析器在JavaScript解析器之前运行。
 
 
-### 2.4.1 规则 3.1 在 HTML上下文中对 JSON 值进行 HTML 转义，并使用 JSON.parse 读取
+### 2.4.1 规则 3.1 在HTML上下文中对JSON值进行HTML转义，并使用JSON.parse读取
 
-在 Web 2.0 世界中，需要在Javascript上下文中使用程序动态生成数据的需求是很常见的。一种策略是使用Ajax 调用来获取数据，但是在有些情况下是不可以的。通常我们加载一个JSON初始块来在一个位置存储多种数值。在不破坏值的格式和内容情况下，对这些数据进行转义不是不可能的，但是却相当的棘手。
+在Web 2.0世界中，需要在Javascript上下文中使用程序动态生成数据的需求是很常见的。一种策略是使用Ajax调用来获取数据，但是在有些情况下是不可行的。通常我们加载一个JSON初始化到页面中，作为一个存储多种类型数值的位置。在不破坏值的格式和内容情况下，对这些数据进行转义不是不可能的，但是却相当的棘手。
 
 确保响应的Content-Type头是application/json而不是application/html。这样可以让浏览器不误解上下文并执行插入的脚本。
 
@@ -143,36 +143,36 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
 一个常见的错误示例如下：
 
 ```
-   <script>
-     var initData = <%= data.to_json %>; // 不要这样做除非使用下列的一种技术对数据进行了编码
-   </script>
+<script>
+  var initData = <%= data.to_json %>; // 不要这样做，除非使用下列的一种技术对数据进行了编码
+</script>
 ```
 #### 2.4.1.1 JSON 实体编码
 
-JSON编码规则可以在[输出编码规则摘要](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#Output_Encoding_Rules_Summary)中找到。请注意，我们将无法使用CSP 1.0提供的XSS保护。
+JSON编码规则可以在[输出编码规则摘要](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#Output_Encoding_Rules_Summary)中找到。请注意，我们将无法使用CSP 1.0提供的XSS保护策略。
 
-#### 2.4.1.2 HTML 实体编码
+#### 2.4.1.2 HTML实体编码
 
-这种技术的优点是，html 实体转义得到了广泛的支持，有助于在不跨越上下文边界的情况下从服务端代码中分离数据。把JSON块作为普通元素放到页面上，然后解析 innnerHTML来获取内容。读取数据的Javascript存在于外部文件中，从而使得CSP实施起来更加的容易。
+这种技术的优点是，HTML实体转义得到了广泛的支持，有助于在不跨越上下文边界的情况下从服务端代码中分离数据。把JSON块作为普通元素放到页面上，然后解析 innnerHTML来获取内容。读取数据的Javascript可以存在于外部文件中，从而使得CSP实施起来更加的容易。
 
 ```
 <div id="init_data" style="display: none">
-    <%= html_escape(data.to_json) %>
- </div>
+  <%= html_escape(data.to_json) %>
+</div>
 ```
 
 ```
- // 外部的js文件
- var dataElement = document.getElementById('init_data');
- // 解码并解析div的内容
- var initData = JSON.parse(dataElement.textContent);
+// 外部的js文件
+var dataElement = document.getElementById('init_data');
+// 解码并解析div的内容
+var initData = JSON.parse(dataElement.textContent);
 ```
 
-一个在JavaScript中转义并直接解转义的替代方案是，在数据发送到浏览器之前，在服务端对JSON数据进行处理，把 '<'转义成为 '\u003c' 。
+一个直接在JavaScript中转义并解转义的替代方案是，在数据发送到浏览器之前，在服务端对JSON数据进行处理，把 '<'转义成为 '\u003c' 。
 
-### 2.5 规则4，将不可信数据插入到HTML Style属性值之前，进 CSS转义并严格验证
+### 2.5 规则4，将不可信数据插入到HTML Style属性值之前，进CSS转义并严格验证
 
-规则4适用于将不可信数据插入到style样式表或者style标签中。CSS出人意料的强大，可以用于许多攻击。因此，仅在属性值中使用不可信数据，而不在其他位置使用，这一点非常的重要。应该避免将不可信数据插入到复杂的属性之中，如 URL、behavior以及自定义的-moz-binding类属性。也不应该把不可信数据插入到克执行JavaScript代码的IE表达式属性中。
+规则4适用于将不可信数据插入到style样式表或者内敛style属性中。CSS出人意料的强大，可以用于许多攻击。因此，仅在属性值中使用不可信数据，而不要在其他位置使用，这一点非常的重要。应该避免将不可信数据插入到复杂的属性之中，如 URL、behavior以及自定义的-moz-binding类属性。也不应该把不可信数据插入到可执行JavaScript代码的IE表达式属性中。
 
 ```
  <style>selector { property : ...在插入这里之前转义不可信数据...; } </style>     属性值
@@ -180,16 +180,16 @@ JSON编码规则可以在[输出编码规则摘要](https://www.owasp.org/index.
  <span style="property : ...在插入这里之前转义不可信数据...">text</span>         属性值
 ```
 
-请注意，有一些CSS上下文不能安全的将不可信数据作为输入——即使正确的使用了CSS转义！你要保证URL只能以 http 而不能以 javascript 开始，而且这些属性不能以 expression 开头。例如：
+请注意，有一些CSS上下文不能安全的将不可信数据作为输入——即使正确的使用了CSS转义！你要保证URL只能以http而不能以javascript开头，而且这些属性不能以 expression开头。例如：
 
 ```
- { background-url : "javascript:alert(1)"; }  // 其他的URL类属性也是如此
- { text-size: "expression(alert('XSS'))"; }   // 只出现在IE中
+{ background-url : "javascript:alert(1)"; }  // 其他的URL类属性也是如此
+{ text-size: "expression(alert('XSS'))"; }   // 只出现在IE中
 ```
 
-除了字母数字字符以外，使用  \HH 格式来转义ASCII值小于256的所有字符。不要使用像 \" 这样的快捷转义方式，因为引号字符可能与先运行的HTML属性解析器相匹配，这些快捷转义方式也容易受到攻击者 "把转义字符进行转义" ，例如攻击者发送了一个 \"，这样把引号转义之后就成了 \\"，最终允许了引号的存在。
+除了字母数字字符以外，使用\HH格式来转义ASCII值小于256的所有字符。不要使用像 \\" 这样的快捷转义方式，因为引号字符可能与先运行的HTML属性解析器相匹配，这些快捷转义方式也容易受到攻击者 "把转义字符进行转义" ，例如攻击者发送了一个 \\"，这样把引号转义之后就成了 \\\\"，最终允许了引号的存在。
 
-如果属性是被引号包裹的，需要使用对应的引号结束。所有的属性都应该放置到引号之中，但是程序应该具有健壮的编码来防御XSS，毕竟不可信数据可能没有放置到引号之中。未加引号的属性可以被很多字符截断，包括 [ 空格 ] % * + , - / ; < = > ^ 和 |。另外，</ style>标记将关闭样式块，即使它位于带引号的字符串中，因为HTML解析器在JavaScript解析器之前运行。请注意，对于无论引号包裹还是没有引号包裹的属性，我们建议积极的CSS编码和验证来阻止XSS攻击。
+如果属性是被引号包裹的，需要使用对应的引号结束。所有的属性都应该放置到引号之中，但是程序应该具有健壮的编码来防御XSS，毕竟不可信数据可能没有放置到引号之中。未加引号的属性可以被很多字符截断，包括 [ 空格 ] % * + , - / ; < = > ^ 和 |。另外，\</style>标记将关闭样式块，即使它位于带引号的字符串中，因为HTML解析器在JavaScript解析器之前运行。请注意，对于无论引号包裹还是没有引号包裹的属性，我们建议积极的CSS编码和验证来阻止XSS攻击。
 
 ### 2.6 规则5，将不可信数据插入到 HTML URL 参数值之前， 进行 URL 转义
 
