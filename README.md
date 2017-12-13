@@ -1,5 +1,27 @@
 # XSS(Cross Site Scripting)防御手册
 
+- [XSS(Cross Site Scripting)防御手册](#xsscross-site-scripting%E9%98%B2%E5%BE%A1%E6%89%8B%E5%86%8C)
+  * [1 引言](#1-%E5%BC%95%E8%A8%80)
+    + [1.1 积极的XSS防御模型](#11-%E7%A7%AF%E6%9E%81%E7%9A%84xss%E9%98%B2%E5%BE%A1%E6%A8%A1%E5%9E%8B)
+    + [1.2 为什么不能对不可信数据只进行 HTML 实体编码？](#12-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E5%AF%B9%E4%B8%8D%E5%8F%AF%E4%BF%A1%E6%95%B0%E6%8D%AE%E5%8F%AA%E8%BF%9B%E8%A1%8C-html-%E5%AE%9E%E4%BD%93%E7%BC%96%E7%A0%81)
+    + [1.3 你需要一个安全的编码库](#13-%E4%BD%A0%E9%9C%80%E8%A6%81%E4%B8%80%E4%B8%AA%E5%AE%89%E5%85%A8%E7%9A%84%E7%BC%96%E7%A0%81%E5%BA%93)
+  * [2 XSS防御规则](#2-xss%E9%98%B2%E5%BE%A1%E8%A7%84%E5%88%99)
+    + [2.1 规则0，除了在允许的位置，绝不能在其他位置插入不可信任的数据](#21-%E8%A7%84%E5%88%990%E9%99%A4%E4%BA%86%E5%9C%A8%E5%85%81%E8%AE%B8%E7%9A%84%E4%BD%8D%E7%BD%AE%E7%BB%9D%E4%B8%8D%E8%83%BD%E5%9C%A8%E5%85%B6%E4%BB%96%E4%BD%8D%E7%BD%AE%E6%8F%92%E5%85%A5%E4%B8%8D%E5%8F%AF%E4%BF%A1%E4%BB%BB%E7%9A%84%E6%95%B0%E6%8D%AE)
+    + [2.2 规则1，将不可信数据插入到 HTML 元素内容之前，进行 HTML 转义](#22-%E8%A7%84%E5%88%991%E5%B0%86%E4%B8%8D%E5%8F%AF%E4%BF%A1%E6%95%B0%E6%8D%AE%E6%8F%92%E5%85%A5%E5%88%B0-html-%E5%85%83%E7%B4%A0%E5%86%85%E5%AE%B9%E4%B9%8B%E5%89%8D%E8%BF%9B%E8%A1%8C-html-%E8%BD%AC%E4%B9%89)
+    + [2.3 规则2，将不可信数据插入到HTML通用属性之前，进行HTML Attribute转义](#23-%E8%A7%84%E5%88%992%E5%B0%86%E4%B8%8D%E5%8F%AF%E4%BF%A1%E6%95%B0%E6%8D%AE%E6%8F%92%E5%85%A5%E5%88%B0html%E9%80%9A%E7%94%A8%E5%B1%9E%E6%80%A7%E4%B9%8B%E5%89%8D%E8%BF%9B%E8%A1%8Chtml-attribute%E8%BD%AC%E4%B9%89)
+    + [2.4 规则3，将不可信数据插入到JavaScript数据值之前，进行JavaScript转义](#24-%E8%A7%84%E5%88%993%E5%B0%86%E4%B8%8D%E5%8F%AF%E4%BF%A1%E6%95%B0%E6%8D%AE%E6%8F%92%E5%85%A5%E5%88%B0javascript%E6%95%B0%E6%8D%AE%E5%80%BC%E4%B9%8B%E5%89%8D%E8%BF%9B%E8%A1%8Cjavascript%E8%BD%AC%E4%B9%89)
+    + [2.4.1 规则 3.1 在 HTML上下文中对 JSON 值进行 HTML 转义，并使用 JSON.parse 读取](#241-%E8%A7%84%E5%88%99-31-%E5%9C%A8-html%E4%B8%8A%E4%B8%8B%E6%96%87%E4%B8%AD%E5%AF%B9-json-%E5%80%BC%E8%BF%9B%E8%A1%8C-html-%E8%BD%AC%E4%B9%89%E5%B9%B6%E4%BD%BF%E7%94%A8-jsonparse-%E8%AF%BB%E5%8F%96)
+      - [2.4.1.1 JSON 实体编码](#2411-json-%E5%AE%9E%E4%BD%93%E7%BC%96%E7%A0%81)
+      - [2.4.1.2 HTML 实体编码](#2412-html-%E5%AE%9E%E4%BD%93%E7%BC%96%E7%A0%81)
+    + [2.5 规则4，将不可信数据插入到HTML Style属性值之前，进 CSS转义并严格验证](#25-%E8%A7%84%E5%88%994%E5%B0%86%E4%B8%8D%E5%8F%AF%E4%BF%A1%E6%95%B0%E6%8D%AE%E6%8F%92%E5%85%A5%E5%88%B0html-style%E5%B1%9E%E6%80%A7%E5%80%BC%E4%B9%8B%E5%89%8D%E8%BF%9B-css%E8%BD%AC%E4%B9%89%E5%B9%B6%E4%B8%A5%E6%A0%BC%E9%AA%8C%E8%AF%81)
+    + [2.6 规则5，将不可信数据插入到 HTML URL 参数值之前， 进行 URL 转义](#26-%E8%A7%84%E5%88%995%E5%B0%86%E4%B8%8D%E5%8F%AF%E4%BF%A1%E6%95%B0%E6%8D%AE%E6%8F%92%E5%85%A5%E5%88%B0-html-url-%E5%8F%82%E6%95%B0%E5%80%BC%E4%B9%8B%E5%89%8D-%E8%BF%9B%E8%A1%8C-url-%E8%BD%AC%E4%B9%89)
+    + [2.7 规则6，使用专业库来清洗HTML标记](#27-%E8%A7%84%E5%88%996%E4%BD%BF%E7%94%A8%E4%B8%93%E4%B8%9A%E5%BA%93%E6%9D%A5%E6%B8%85%E6%B4%97html%E6%A0%87%E8%AE%B0)
+    + [2.8 规则 7，防止 DOM-based XSS](#28-%E8%A7%84%E5%88%99-7%E9%98%B2%E6%AD%A2-dom-based-xss)
+    + [2.9 加分规则1，使用 HTTPOnly Cookie 标记](#29-%E5%8A%A0%E5%88%86%E8%A7%84%E5%88%991%E4%BD%BF%E7%94%A8-httponly-cookie-%E6%A0%87%E8%AE%B0)
+    + [2.10 加分规则2，实施内容安全策略](#210-%E5%8A%A0%E5%88%86%E8%A7%84%E5%88%992%E5%AE%9E%E6%96%BD%E5%86%85%E5%AE%B9%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5)
+    + [2.11 加分规则3，使用自动转义模板系统](#211-%E5%8A%A0%E5%88%86%E8%A7%84%E5%88%993%E4%BD%BF%E7%94%A8%E8%87%AA%E5%8A%A8%E8%BD%AC%E4%B9%89%E6%A8%A1%E6%9D%BF%E7%B3%BB%E7%BB%9F)
+    + [2.12 加分规则4，使用X-XSS-Protection响应头](#212-%E5%8A%A0%E5%88%86%E8%A7%84%E5%88%994%E4%BD%BF%E7%94%A8x-xss-protection%E5%93%8D%E5%BA%94%E5%A4%B4)
+    
 ## 1 引言
 
 本文提供了一个简单的正向机制来阻止 [XSS](https://www.owasp.org/index.php/Cross-site_Scripting_(XSS))：恰当地输出转义/编码后数据。虽然有大量的 XSS 攻击方式，但是遵循一些简单的规则可以完全抵御这些严重攻击。
