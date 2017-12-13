@@ -298,7 +298,7 @@ HTML | HTML结构体 | \<div>不可信 HTML\</div> | [HTML Validation (JSoup, An
 
 编码类型 | 编码机制
 ------------ | -------------
-HTML 实体编码 | 把 & 转化为 &amp; <br> 把 < 转化为 &lt;  <br> 把 > 转化为 &gt;  <br> 把 " 转化为 &quot; <br> 把 ' 转化为 &#x27; <br>  把 / 转化为 &#x2F; <br>
+HTML 实体编码 | 把 & 转化为 `&amp;` <br> 把 < 转化为 `&lt;`  <br> 把 > 转化为 `&gt`;  <br> 把 " 转化为 `&quot;` <br> 把 ' 转化为 `&#x27;` <br>  把 / 转化为 `&#x2F;` <br>
 HTML 属性编码 | 除字母数字字符外，请使用HTML实体&#xHH;的格式编码所有字符，包括空格。（HH=十六进制值）
 URL 编码 | 标准编码，请参阅：http : //www.w3schools.com/tags/ref_urlencode.asp。<br>网址编码只能用于编码参数值，而不能用于URL的整个URL或路径片段。
 JavaScript 编码 | 除字母数字字符外，请使用\uXXXX unicode转义格式（X=整数）转义所有字符。
