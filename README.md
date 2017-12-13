@@ -1,4 +1,4 @@
-# XSS(Cross Site Scripting)防御手册
+# XSS防御手册
 
 ## 1 引言
 
