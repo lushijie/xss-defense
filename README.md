@@ -21,7 +21,7 @@
     + [2.10 加分规则2，实施内容安全策略](#210-%E5%8A%A0%E5%88%86%E8%A7%84%E5%88%992%E5%AE%9E%E6%96%BD%E5%86%85%E5%AE%B9%E5%AE%89%E5%85%A8%E7%AD%96%E7%95%A5)
     + [2.11 加分规则3，使用自动转义模板系统](#211-%E5%8A%A0%E5%88%86%E8%A7%84%E5%88%993%E4%BD%BF%E7%94%A8%E8%87%AA%E5%8A%A8%E8%BD%AC%E4%B9%89%E6%A8%A1%E6%9D%BF%E7%B3%BB%E7%BB%9F)
     + [2.12 加分规则4，使用X-XSS-Protection响应头](#212-%E5%8A%A0%E5%88%86%E8%A7%84%E5%88%994%E4%BD%BF%E7%94%A8x-xss-protection%E5%93%8D%E5%BA%94%E5%A4%B4)
-    
+
 ## 1 引言
 
 本文提供了一个简单的正向机制来阻止 [XSS](https://www.owasp.org/index.php/Cross-site_Scripting_(XSS))：恰当地输出转义/编码后数据。虽然有大量的 XSS 攻击方式，但是遵循一些简单的规则可以完全抵御这些严重攻击。
@@ -46,9 +46,9 @@
 ### 1.2 为什么不能对不可信数据只进行 HTML 实体编码？
 
 HTML实体编码对于用来编码放置在HTML标签中的不可信数据是可以的，例如\<div>标记内。对于使用引号包裹的属性，使用HTML实体编码对于不可信数据来说也是可行的。但是，如果你将不可信的数据放置到<script>标记的任何位置、onmouseover事件处理程序、CSS内部或者URL中，那么HTML实体编码就不起作用了,这时即便你到处使用HTML实体编码仍然可能遭受XSS攻击。你必须对特定HTML文档部分放置的不可信数据，使用编码语法进行处理。这也是我们下面所要讲的。
-  
+
  ### 1.3 你需要一个安全的编码库
-  
+
 编写这些编码器并不是非常困难，但是也有不少隐藏的陷阱。例如，你可能会在 JavaScript 中试图使用像 \" 这样的快捷转义。但是,这样做是危险的，可能会被浏览器中的嵌套解析器误解。你也可能忘记转义转义字符，攻击者可以中和掉你的转义。OWASP建议使用一个专注安全的编码库，以确保这些规则正确实施。
 
 Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting Library](http://wpl.codeplex.com/)的编码库，并且ASP.NET Framework内置了[ValidateRequest](https://msdn.microsoft.com/en-us/library/ms972969.aspx#securitybarriers_topic6)函数，可以进行一定的清洗。
@@ -56,7 +56,7 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
  OWASP的[OWASP Java Encoder Project](https://www.owasp.org/index.php/OWASP_Java_Encoder_Project)为Java提供了高性能的编码库。
 
 ## 2 XSS防御规则
- 
+
 以下规则旨在防止应用程序中所有XSS。尽管这些规则不允许绝对自由地将不可信数据放入HTML文档，但它们应该能覆盖绝大多数常见用例。在你的代码中可能不必开启所有的规则。许多组织可能会发现只运行规则1和规则2就足够满足他们的需求。如果额外的有些上下文是经常需要的，并且可以通过转义进行保护，请在讨论页面上添加讨论。
 
 不要简单地转义在各种规则中提供的示例字符。仅仅转义这个列表是不够的，黑名单方法相当脆弱。这里的白名单规则经过精心设计，即使针对由浏览器更改引入的未来漏洞，也能提供保护。
@@ -95,13 +95,13 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
  ' --> &#x27;     &apos; 不推荐，因为它不在HTML规范中, &apos;存在于在XML和XHTML规范中。
  / --> &#x2F;     包括正斜杠，因为它有可以结束一个HTML实体
  ```
- 
+
 ### 2.3 规则2，将不可信数据插入到HTML通用属性之前，进行HTML Attribute转义
 
 规则2是将不可信数据放入典型的属性值里，如 width, name和value 等。这个规则不应该用于复杂属性：href、src、style，或者诸如onmouseover等事件处理程序。 作为HTML JavaScript数据，事件处理程序这类属性应该遵循规则3，这一点是非常重要的。
 
 ```
- <div attr=...在插入这里之前转义不可信数据...>内容</div>      属性值无引号包裹 
+ <div attr=...在插入这里之前转义不可信数据...>内容</div>      属性值无引号包裹
  <div attr='...在插入这里之前转义不可信数据...'>内容</div>    属性值使用单引号包裹
  <div attr="...在插入这里之前转义不可信数据...">内容</div>    属性值使用双引号包裹
 ```
@@ -109,7 +109,7 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
 除了字母数字字符以外，使用 &#xHH;(或者可用的命名实体)格式来转义ASCII值小于256所有的字符，来防止切换出属性上下文。这个规则覆盖这么多字符的原因是开发者写属性时经常不把属性放到引号之中。相应的引号包裹的属性只能用相应的引号转义规则。没有引号的属性可能使用好多字符来分开：包括 [ 空格 ] %  * + , - / ; < = > ^ 和 |。
 
  ### 2.4 规则3，将不可信数据插入到JavaScript数据值之前，进行JavaScript转义
- 
+
  规则3涉及动态生成的 JavaScript 代码——script 块和事件处理程序属性中。将不可信数据放入此类代码断的唯一安全位置：引号包裹的数值位置。在其他任何 JavaScript 上下文中包含不可信数据都是相当危险的，因为包含但是不限于分号、等号、空格、加号等字符来切换到一个执行上下文是非常容易的，所以请谨慎使用。
 
 ```
@@ -174,7 +174,7 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
 
 JSON编码规则可以在[输出编码规则摘要](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#Output_Encoding_Rules_Summary)中找到。请注意，我们将无法使用CSP 1.0提供的XSS保护。
 
-#### 2.4.1.2 HTML 实体编码 
+#### 2.4.1.2 HTML 实体编码
 
 这种技术的优点是，html 实体转义得到了广泛的支持，有助于在不跨越上下文边界的情况下从服务端代码中分离数据。把JSON块作为普通元素放到页面上，然后解析 innnerHTML来获取内容。读取数据的Javascript存在于外部文件中，从而使得CSP实施起来更加的容易。
 
@@ -219,7 +219,7 @@ JSON编码规则可以在[输出编码规则摘要](https://www.owasp.org/index.
 规则5适用于将不可信参数作为HTTP GET 参数值时。
 
 ```
-<a href="http://www.somesite.com?test= ...在插入这里之前转义不可信数据..."> link </ a>   
+<a href="http://www.somesite.com?test= ...在插入这里之前转义不可信数据..."> link </ a>
 ```
 
 除了字母数字字符以外，使用%HH格式来转义ASCII值小于256的所有字符。URL不应该出现在不可信数据之中，因为没有好办法通过转义来防止切换出URL上下文。所有的属性都应该使用引号包裹。没有引号包裹的属性可以使用许多字符来中断，包括 [space] % * + , - / ; < = > ^ 和 | 等。请注意，在这个上下文实体编码是无用的。
@@ -228,8 +228,8 @@ JSON编码规则可以在[输出编码规则摘要](https://www.owasp.org/index.
 
 ```
 String userURL = request.getParameter( "userURL" )
- boolean isValidURL = Validator.IsValidURL(userURL, 255); 
- if (isValidURL) {  
+ boolean isValidURL = Validator.IsValidURL(userURL, 255);
+ if (isValidURL) {
      <a href="<%=encoder.encodeForHTMLAttribute(userURL)%>">link</a>
  }
 ```
@@ -264,7 +264,7 @@ Ruby on Rails 清理器 - http://api.rubyonrails.org/classes/ActionView/Helper
 SanitizeHelper模块提供了一套用于清理不需要的HTML元素的文本的方法。
 
 ```
-  <%= sanitize @comment.body, tags: %w(strong em a), attributes: %w(href) %>   
+  <%= sanitize @comment.body, tags: %w(strong em a), attributes: %w(href) %>
 ```
 
 其他提供HTML清洗的库包括：
@@ -298,8 +298,13 @@ Content-Security-Policy: default-src: 'self'; script-src: 'self' static.domain.t
 
 这个HTTP响应头可以把内置到一些现代浏览器的XSS防御机制打开。这个头文件默认是启用的，它的作用是如果用户禁用了规则，可以重新设置启用。
 
+
+## 3 XSS 防御规则总结
+
+以下表格展示了在不同的上下文如何安全的显示不可信数据：
+
 数据类型 | 上下文 | 代码示例 | 防御措施
------------- | ------------- | ------------- | ------------- 
+------------ | ------------- | ------------- | -------------
 字符串 | HTML结构体 | \<span>不可信数据\</span> | [HTML实体编码](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.231_-_HTML_Escape_Before_Inserting_Untrusted_Data_into_HTML_Element_Content)
 字符串 | 安全的HTML属性 | \<input type="text" name="fname" value="不可信数据">| [积极的HTML实体编码](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.232_-_Attribute_Escape_Before_Inserting_Untrusted_Data_into_HTML_Common_Attributes)<br>只将不可信数据放到白名单属性中（下面列出）<br>对background, id 和 name这些不安全属性进行严格校验
 字符串 | GET参数 | \<a href="/site/search?value=不可信数据">clickme\</a>| [URL编码](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.235_-_URL_Escape_Before_Inserting_Untrusted_Data_into_HTML_URL_Parameter_Values)
@@ -308,3 +313,17 @@ Content-Security-Policy: default-src: 'self'; script-src: 'self' static.domain.t
 String | JavaScript值 | \<script>var currentValue='不可信数据';\</script> <br>\<script>someFunction('不可信数据');\</script>|确保JavaScript变量使用引号包裹<br>JavaScript 16进制编码<br>JavaScript Unicode编码<br>避免反斜线编码（\"或\'或\\）<br>
 HTML | HTML结构体 | \<div>不可信 HTML\</div> | [HTML Validation (JSoup, AntiSamy, HTML Sanitizer)](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.236_-_Use_an_HTML_Policy_engine_to_validate_or_clean_user-driven_HTML_in_an_outbound_way)
 字符串 | DOM XSS | \<script>document.write("不可信输入: " + document.location.hash);\</script> | [基于DOM的XSS防御备忘](https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet)
+
+安全的HTML属性包括：align, alink, alt, bgcolor, border, cellpadding, cellspacing, class, color, cols, colspan, coords, dir, face, height, hspace, ismap, lang, marginheight, marginwidth, multiple, nohref, noresize, noshade, nowrap, ref, rel, rev, rows, rowspan, scrolling, shape, span, summary, tabindex, title, usemap, valign, value, vlink, vspace, width
+
+## 4 输出编码规则总结
+
+输出编码（因为导致XSS）的目的是将不可信输入转换为安全形式，以输入以数据的形式显示给用户，而不在浏览器中执行代码。以下表格详细列出了防御XSS所需的关键编码方法。
+
+编码类型 | 编码机制
+------------ | -------------
+HTML 实体编码 | 把 & 转化为 &amp; <br> 把 < 转化为 &lt;  <br> 把 > 转化为 &gt;  <br> 把 " 转化为 &quot; <br> 把 ' 转化为 &#x27; <br>  把 / 转化为 &#x2F; <br>
+HTML 属性编码 | 除字母数字字符外，请使用HTML实体&#xHH;的格式编码所有字符，包括空格。（HH=十六进制值）
+URL 编码 | 标准编码，请参阅：http : //www.w3schools.com/tags/ref_urlencode.asp。<br>网址编码只能用于编码参数值，而不能用于URL的整个URL或路径片段。
+JavaScript 编码 | 除字母数字字符外，请使用\uXXXX unicode转义格式（X=整数）转义所有字符。
+CSS 16进制编码 | CSS转义支持\XX和\XXXXXX。如果下一个字符继续转义序列，则使用双字符转义可能会导致问题。有两种解决方案（a）在CSS转义之后添加一个空格（将被CSS解析器忽略）（b）通过零填充值使用全部的CSS转义量。
