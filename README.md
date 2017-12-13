@@ -191,17 +191,17 @@ var initData = JSON.parse(dataElement.textContent);
 
 如果属性是被引号包裹的，需要使用对应的引号结束。所有的属性都应该放置到引号之中，但是程序应该具有健壮的编码来防御XSS，毕竟不可信数据可能没有放置到引号之中。未加引号的属性可以被很多字符截断，包括 [ 空格 ] % * + , - / ; < = > ^ 和 |。另外，\</style>标记将关闭样式块，即使它位于带引号的字符串中，因为HTML解析器在JavaScript解析器之前运行。请注意，对于无论引号包裹还是没有引号包裹的属性，我们建议积极的CSS编码和验证来阻止XSS攻击。
 
-### 2.6 规则5，将不可信数据插入到 HTML URL 参数值之前， 进行 URL 转义
+### 2.6 规则5，将不可信数据插入到HTML URL参数值之前， 进行URL转义
 
 规则5适用于将不可信参数作为HTTP GET 参数值时。
 
 ```
-<a href="http://www.somesite.com?test= ...在插入这里之前转义不可信数据..."> link </ a>
+<a href="http://www.somesite.com?test= ...在插入这里之前转义不可信数据..."> link </a>
 ```
 
-除了字母数字字符以外，使用%HH格式来转义ASCII值小于256的所有字符。URL不应该出现在不可信数据之中，因为没有好办法通过转义来防止切换出URL上下文。所有的属性都应该使用引号包裹。没有引号包裹的属性可以使用许多字符来中断，包括 [space] % * + , - / ; < = > ^ 和 | 等。请注意，在这个上下文实体编码是无用的。
+除了字母数字字符以外，使用%HH格式来转义ASCII值小于256的所有字符。URL不应该出现在不可信数据之中，因为没有好办法通过转义来防止切换出URL上下文。所有的属性都应该使用引号包裹。没有引号包裹的属性可以使用许多字符来中断，包括 [space] % * + , - / ; < = > ^ 和 | 等。请注意，在这个上下文实体编码是无效的。
 
-警告：不要使用URL编码对完整或相对URL进行编码！如果不信任的输入是要放入href，src或其他基于URL的属性，应该验证它是否指向一个其他协议，特别是JavaScript链接。然后应该像其他任何数据一样，根据相应的上下文对URL进行编码。例如，href属性中的URL应该是使用属性编码的。例如：
+警告：不要使用URL编码对完整或相对URL进行编码！如果不信任的输入是要放入href，src或其他基于URL的属性，应该验证它是否指向其他协议，特别是JavaScript链接。然后应该像对待其他数据一样，根据相应的上下文对URL进行编码。例如，href属性中的URL应该是使用属性编码的。例如：
 
 ```
 String userURL = request.getParameter( "userURL" )
@@ -213,50 +213,49 @@ String userURL = request.getParameter( "userURL" )
 
 ### 2.7 规则6，使用专业库来清洗HTML标记
 
-如果程序处理html标记时，不可信的输入包含html，可能非常的难以验证。编码也是非常困难的，因为它会转义应该出现在输入中的所有标签。因此你需要一个可以解析和清洗HTML格式文本的库。在OWASP有几个简单易用的版本：
+如程序处理html标记时，果不可信的输入包含html，可能非常的难以验证。编码也是非常困难的，因为它会转义应该出现在输入中的所有标签。因此你需要一个可以解析和清洗HTML格式文本的库。在OWASP有几个简单易用的版本：
 
 HtmlSanitizer - https://github.com/mganss/HtmlSanitizer
 
-一个开源的.NET库。HTML使用白名单方式清理的。所有允许的标签和属性都是可以配置的。该库使用[OWASP XSS过滤漏洞备忘](https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet)进行过单元测试：
+这是一个开源的.NET库，HTML使用白名单方式进行清洗。所有允许的标签和属性都是可以配置的。该库使用[OWASP XSS过滤漏洞备忘单](https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet)进行过单元测试：
 
 ```
- var sanitizer = new HtmlSanitizer();
- sanitizer.AllowedAttributes.Add("class");
- var sanitized = sanitizer.Sanitize(html);
+var sanitizer = new HtmlSanitizer();
+sanitizer.AllowedAttributes.Add("class");
+var sanitized = sanitizer.Sanitize(html);
 ```
 
-OWASP Java HTML Sanitizer - OWASP Java HTML Sanitizer Project
+OWASP Java HTML Sanitizer - [OWASP Java HTML Sanitizer Project](https://www.owasp.org/index.php/OWASP_Java_HTML_Sanitizer_Project)
 
 ```
-  import org.owasp.html.Sanitizers;
-  import org.owasp.html.PolicyFactory;
-  PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
-  String cleanResults = sanitizer.sanitize("<p>Hello, <b>World!</b>");
+import org.owasp.html.Sanitizers;
+import org.owasp.html.PolicyFactory;
+PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
+String cleanResults = sanitizer.sanitize("<p>Hello, <b>World!</b>");
 ```
 
-有关OWASP Java HTML清洗程序策略构建的更多信息，请参阅 https://github.com/OWASP/java-html-sanitizer
+有关OWASP Java HTML清洗策略的更多信息，请参阅 https://github.com/OWASP/java-html-sanitizer
 
-Ruby on Rails 清理器 - http://api.rubyonrails.org/classes/ActionView/Helpers/SanitizeHelper.html
+Ruby on Rails SanitizeHelper - http://api.rubyonrails.org/classes/ActionView/Helpers/SanitizeHelper.html
 
 SanitizeHelper模块提供了一套用于清理不需要的HTML元素的文本的方法。
 
 ```
-  <%= sanitize @comment.body, tags: %w(strong em a), attributes: %w(href) %>
+<%= sanitize @comment.body, tags: %w(strong em a), attributes: %w(href) %>
 ```
 
 其他提供HTML清洗的库包括：
-
 PHP HTML Purifier - http://htmlpurifier.org/
 JavaScript/Node.js Bleach - https://github.com/ecto/bleach
 Python Bleach - https://pypi.python.org/pypi/bleach
 
 ### 2.8 规则 7，防止 DOM-based XSS
 
-有关基于DOM的XSS的详细信息，以及针对此类XSS缺陷的防范，请参阅[基于DOM的XSS预防备忘单](https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet)的OWASP文章。
+有关基于DOM的XSS的详细信息，以及针对此类XSS缺陷的防范，请参阅[基于DOM的XSS预防备忘单](https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet)此篇OWASP文章。
 
-### 2.9 加分规则1，使用 HTTPOnly Cookie 标记
+### 2.9 加分规则1，使用HTTPOnly Cookie标记
 
-正如你所看到的，防止应用程序中的所有XSS缺陷是困难的。为了帮助减轻XSS漏洞对网站的影响，OWASP还建议您在session Cookie上设置HTTPOnly标志，并为那些不能被JavaScript访问的自定义cookie也设置这个标志。这个cookie标志通常在.NET应用程序中默认处于打开状态，但在其他语言中，必须手动设置它。有关HTTPOnly cookie标志的更多详细信息，包括它的作用，以及如何使用它，请参阅OWASP上[HTTPOnly](https://www.owasp.org/index.php/HTTPOnly)的文章。
+正如你所看到的，防止应用程序中的所有XSS缺陷是困难的。为了帮助减轻XSS漏洞对网站的影响，OWASP还建议您在session Cookie上设置HTTPOnly标志，并为那些不能被JavaScript访问的自定义cookie也设置这个标志。这个cookie标志通常在.NET应用程序中默认处于打开状态，但在其他语言中，必须手动设置它。有关HTTPOnly cookie标志的更多详细信息，包括它的作用，以及如何使用，请参阅OWASP上[HTTPOnly](https://www.owasp.org/index.php/HTTPOnly)的文章。
 
 ### 2.10 加分规则2，实施内容安全策略
 
@@ -265,7 +264,7 @@ Python Bleach - https://pypi.python.org/pypi/bleach
 ```
 Content-Security-Policy: default-src: 'self'; script-src: 'self' static.domain.tld
 ```
-将指示Web浏览器仅加载来自页面源的资源和static.domain.tld下的JavaScript源代码文件。有关内容安全策略的更多详细信息，包括其内容，以及如何使用它，请参阅OWASP的关于[Content_Security_Policy](https://www.owasp.org/index.php/Content_Security_Policy)文章。
+将指示Web浏览器仅加载来自页面源的资源和static.domain.tld下的JavaScript源代码文件。有关内容安全策略的更多详细信息，包括其内容，以及如何使用，请参阅OWASP上[Content_Security_Policy](https://www.owasp.org/index.php/Content_Security_Policy)的文章。
 
 ### 2.11 加分规则3，使用自动转义模板系统
 
@@ -273,29 +272,29 @@ Content-Security-Policy: default-src: 'self'; script-src: 'self' static.domain.t
 
 ### 2.12 加分规则4，使用X-XSS-Protection响应头
 
-这个HTTP响应头可以把内置到一些现代浏览器的XSS防御机制打开。这个头文件默认是启用的，它的作用是如果用户禁用了规则，可以重新设置启用。
+这个HTTP响应头可以把内置在一些现代浏览器的XSS防御机制打开。这个头文件默认是启用的，它的作用是如果用户禁用了规则，可以重新设置启用。
 
 
-## 3 XSS 防御规则总结
+## 3 XSS 防御规则汇总
 
 以下表格展示了在不同的上下文如何安全的显示不可信数据：
 
 数据类型 | 上下文 | 代码示例 | 防御措施
 ------------ | ------------- | ------------- | -------------
 字符串 | HTML结构体 | \<span>不可信数据\</span> | [HTML实体编码](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.231_-_HTML_Escape_Before_Inserting_Untrusted_Data_into_HTML_Element_Content)
-字符串 | 安全的HTML属性 | \<input type="text" name="fname" value="不可信数据">| [积极的HTML实体编码](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.232_-_Attribute_Escape_Before_Inserting_Untrusted_Data_into_HTML_Common_Attributes)<br>只将不可信数据放到白名单属性中（下面列出）<br>对background, id 和 name这些不安全属性进行严格校验
+字符串 | 安全的HTML属性 | \<input type="text" name="fname" value="不可信数据">| [积极的HTML实体编码](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.232_-_Attribute_Escape_Before_Inserting_Untrusted_Data_into_HTML_Common_Attributes)<br>只将不可信数据放到白名单属性中（下面会列出）<br>对background, id 和 name这些不安全属性进行严格校验
 字符串 | GET参数 | \<a href="/site/search?value=不可信数据">clickme\</a>| [URL编码](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.235_-_URL_Escape_Before_Inserting_Untrusted_Data_into_HTML_URL_Parameter_Values)
-字符串 | src或者href属性中的URL | \<a href="不可信URL">clickme\</a><br>\<iframe src="不可信URL" /> | 规范输入<br>URL验证<br>安全URL验证<br>只能是位于白名单中的HTTP和HTTPS协议（[避免JavaScript协议打开一个新窗口](https://www.owasp.org/index.php/Avoid_the_JavaScript_Protocol_to_Open_a_new_Window)）<br>属性编码
+字符串 | src或者href属性中的URL | \<a href="不可信URL">clickme\</a><br>\<iframe src="不可信URL" /> | 规范输入<br>URL验证<br>安全URL验证<br>只能是HTTP或者HTTPS协议（[避免JavaScript协议打开一个新窗口](https://www.owasp.org/index.php/Avoid_the_JavaScript_Protocol_to_Open_a_new_Window)）<br>属性编码
 字符串 | CSS值 |\<div style="width: 不可信数据;">Selection\</div> |[严格的结构验证](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.234_-_CSS_Escape_And_Strictly_Validate_Before_Inserting_Untrusted_Data_into_HTML_Style_Property_Values)<br>CSS十六进制编码<br>良好的CSS特性设计模式<br>
-String | JavaScript值 | \<script>var currentValue='不可信数据';\</script> <br>\<script>someFunction('不可信数据');\</script>|确保JavaScript变量使用引号包裹<br>JavaScript 16进制编码<br>JavaScript Unicode编码<br>避免反斜线编码（\"或\'或\\）<br>
+String | JavaScript值 | \<script>var currentValue='不可信数据';\</script> <br>\<script>someFunction('不可信数据');\</script>|确保JavaScript变量使用引号包裹<br>JavaScript 16进制编码<br>JavaScript Unicode编码<br>避免反斜线编码（\\"或\\'或\\\\）<br>
 HTML | HTML结构体 | \<div>不可信 HTML\</div> | [HTML Validation (JSoup, AntiSamy, HTML Sanitizer)](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.236_-_Use_an_HTML_Policy_engine_to_validate_or_clean_user-driven_HTML_in_an_outbound_way)
 字符串 | DOM XSS | \<script>document.write("不可信输入: " + document.location.hash);\</script> | [基于DOM的XSS防御备忘](https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet)
 
 安全的HTML属性包括：align, alink, alt, bgcolor, border, cellpadding, cellspacing, class, color, cols, colspan, coords, dir, face, height, hspace, ismap, lang, marginheight, marginwidth, multiple, nohref, noresize, noshade, nowrap, ref, rel, rev, rows, rowspan, scrolling, shape, span, summary, tabindex, title, usemap, valign, value, vlink, vspace, width
 
-## 4 输出编码规则总结
+## 4 输出编码规则汇总
 
-输出编码（因为导致XSS）的目的是将不可信输入转换为安全形式，以输入以数据的形式显示给用户，而不在浏览器中执行代码。以下表格详细列出了防御XSS所需的关键编码方法。
+输出编码（因为导致XSS）的目的是将不可信输入转换为安全形式，以输入数据的形式显示给用户，而不在浏览器中执行代码。以下表格详细列出了防御XSS所需的关键编码方法。
 
 编码类型 | 编码机制
 ------------ | -------------
