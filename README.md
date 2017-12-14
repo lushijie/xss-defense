@@ -2,7 +2,7 @@
 
 ## 1 引言
 
-本文提供了一个简单的正向机制来防御[XSS](https://www.owasp.org/index.php/Cross-site_Scripting_(XSS))：恰当地输出转义/编码后数据。虽然有大量的XSS攻击方式，但是遵循一些简单的规则可以完全抵御这些严重攻击。本文不探讨XSS对技术、业务的影响，只说XSS可以导致攻击者能够具有操作浏览器的能力。
+本文提供了一个简单的正向机制来防御[XSS](https://www.owasp.org/index.php/Cross-site_Scripting_(XSS))：恰当地输出转义/编码后的数据。虽然有大量的XSS攻击方式，但是遵循一些简单的规则可以完全抵御这些严重攻击。本文不探讨XSS对技术、业务的影响，只说XSS可以导致攻击者能够获取到操作浏览器的做任何事情的能力。
 
 [反射型和存储型XSS](https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)#Stored_and_Reflected_XSS_Attacks)都可以通过在服务端执行适当的验证和转义来规避。[基于DOM的XSS](https://www.owasp.org/index.php/DOM_Based_XSS)可以使用 [基于DOM的XSS预防手册](https://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet) 一文中描述的子集规则来防御。
 
@@ -12,17 +12,17 @@
 
 ### 1.1 积极的XSS防御模型
 
-本文将HTML页面视为模板，允许开发人员在插槽(slots)中插入不可信数据。这些插槽覆盖了绝大多数开发人员放置不可信数据的位置。不允许在在HTML的其他位置放置不可信数据。这是一个白名单模式，只有在白名单之中的才是被允许的。
+本文将HTML页面视为模板，模板中存在插槽（slots），允许开发人员在插槽中插入不可信数据。这些插槽覆盖了开发人员绝大多数放置不可信数据的位置。不允许在插槽外的其他位置放置不可信数据。这是一个白名单模式，只有在白名单之中的才是被允许的。
 
 鉴于浏览器解析HTML的方式，不同类型的插槽具有稍微不同的安全规则。将不可信数据放入到插槽时，需要采取一定的措施来确保数据不会从该插槽中跳到允许执行代码的上下文中。从某种意义上，这种方法将HTML文档视为参数化的数据库查询——数据保存在特定的位置，并通过转义与代码上下文隔离。
 
-本文列出了安全地将不可信数据放入常见的插槽的规则。基于大量的规则、已知的XSS攻击方法和大量的先进浏览器的测试，我们可以保证这些规则是安全的。
+本文列出了安全地将不可信数据放入常见插槽的规则。基于大量的规则、已知的XSS攻击方法和大量先进浏览器的测试，我们可以保证这里提到的这些规则是安全的。
 
-我们指定了插槽位置并对每个插槽提供了几个例子。为了确保安全，开发人员不应该在没有仔细分析的情况下就将不可信数据放入到其它插槽位置。浏览器解析是非常棘手的，许多看起来无害的角色可能在特定的上下文中起非常重要的作用。
+我们指定了插槽位置并对每个插槽提供了几个例子。为了确保安全，开发人员不应该在没有仔细分析的情况下就将不可信数据放入到其它插槽位置。浏览器解析是非常棘手的，许多看起来无害的字符可能在特定的上下文中起非常重要的作用。
 
 ### 1.2 为什么不能只对不可信数据进行HTML实体编码？
 
-HTML实体编码用来编码放置在HTML标签中的不可信数据是可以的，例如\<div>标记内。对于使用引号包裹的属性，使用HTML实体编码不可信数据也是可行的。但是，如果你将不可信的数据放置到<script>标记的任何位置、onmouseover事件处理程序、CSS内部或者URL中，那么HTML实体编码就不起作用了，这时即便你到处使用HTML实体编码仍然可能遭受XSS攻击。你必须对不同HTML文档部分放置的不可信数据，使用特定编码语法进行处理，这也是我们下面所要讲的。
+HTML实体编码用来编码放置在HTML标签中的不可信数据是可以的，例如\<div>标记内。**对于使用引号包裹的属性，使用HTML实体编码不可信数据也是可行的。** 但是，如果你将不可信的数据放置到\<script>标记的任何位置、onmouseover事件处理程序、CSS内部或者URL中，那么HTML实体编码就不起作用了，这时即便你到处使用HTML实体编码仍然可能遭受XSS攻击。你必须对不同HTML文档部分放置的不可信数据，使用特定编码语法进行处理，这也是我们下面所要讲的。
 
  ### 1.3 你需要一个安全的编码库
 
@@ -30,7 +30,7 @@ HTML实体编码用来编码放置在HTML标签中的不可信数据是可以的
 
 Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting Library](http://wpl.codeplex.com/)的编码库，并且ASP.NET Framework内置了[ValidateRequest](https://msdn.microsoft.com/en-us/library/ms972969.aspx#securitybarriers_topic6)函数，可以进行一定程度的清洗。
 
- OWASP的[OWASP Java Encoder Project](https://www.owasp.org/index.php/OWASP_Java_Encoder_Project)是为Java提供的高性能编码库。
+ OWASP的[OWASP Java Encoder Project](https://www.owasp.org/index.php/OWASP_Java_Encoder_Project)是为Java提供的高性能编码库。
 
 ## 2 XSS防御规则
 
@@ -83,7 +83,7 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
  <div attr="...在这里插入不可信数据之前进行转义...">内容</div>    属性值使用双引号包裹
 ```
 
-除了字母数字字符以外，使用 &#xHH;(或者可用的命名实体)格式来转义ASCII值小于256所有的字符，来防止切换出属性上下文。这个规则覆盖这么多字符的原因是开发者写属性时经常不把属性放到引号之中。相应的引号包裹的属性只能用相应的引号转义规则。没有引号的属性可能使用很多字符来分开：包括 [ 空格 ] %  * + , - / ; < = > ^ 和 |。
+除了字母数字字符以外，使用 &#xHH;(或者可用的命名实体)格式来转义ASCII值小于256所有的字符，来防止切换出属性上下文。这个规则覆盖这么多字符的原因是开发者写属性时经常不把属性放到引号之中。相应的引号包裹的属性只能用相应的引号转义规则。没有引号的属性可能使用很多字符来分开：包括 [ 空格 ] %  * + , - / ; < = > ^ 和 |。
 
  ### 2.4 规则3，将不可信数据插入到JavaScript数据值之前，进行JavaScript转义
 
@@ -91,7 +91,7 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
 
 ```
  <script>alert('...在这里插入不可信数据之前进行转义...')</script>                 写在引号包裹的字符串中
- <script>x='...在这里插入不可信数据之前进行转义...'</script>                      写在表达式中的引号中
+ <script>x='...在这里插入不可信数据之前进行转义...'</script>                      写在表达式中的引号中
  <div onmouseover="x='...在这里插入不可信数据之前进行转义...'"</div>              写在引号包裹的事件处理程序中
 ```
 
@@ -105,7 +105,7 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
 ```
 除字母数字字符外，请使用\xHH格式转义ASCII码小于256的所有字符，以防止从数据值切换到Script上下文或者进入其他属性。不要使用像 \\" 这样的快捷转义方式，因为引号字符可能与先运行的HTML属性解析器相匹配，这些快捷转义方式也容易受到攻击者 "把转义字符进行转义" ，例如攻击者发送了一个 \\"，这样把引号转义之后就成了 \\\\"，最终允许了引号的存在。
 
-如果一个事件处理程序使用引号包裹，就需要一个与之对应的引号结束。我们故意将这个规则定的相当宽泛，是因为事件处理程序常不加引号。未加引号的属性可以被很多字符截断，包括 [ 空格 ] % * + , - / ; < = > ^ 和 |。此外，\</script>结束标记将关闭脚本块，即使它位于带引号的字符串内，因为HTML解析器在JavaScript解析器之前运行。
+如果一个事件处理程序使用引号包裹，就需要一个与之对应的引号结束。我们故意将这个规则定的相当宽泛，是因为事件处理程序常不加引号。未加引号的属性可以被很多字符截断，包括 [ 空格 ] % * + , - / ; < = > ^ 和 |。此外，\</script>结束标记将关闭脚本块，即使它位于带引号的字符串内，因为HTML解析器在JavaScript解析器之前运行。
 
 
 ### 2.4.1 规则 3.1 在HTML上下文中对JSON值进行HTML转义，并使用JSON.parse读取
@@ -120,14 +120,14 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
    HTTP/1.1 200
    Date: Wed, 06 Feb 2013 10:28:54 GMT
    Server: Microsoft-IIS/7.5....
-   Content-Type: text/html; charset=utf-8 <-- 不好
-   ....
+   Content-Type: text/html; charset=utf-8 <-- 不好
+   ....
    Content-Length: 373
    Keep-Alive: timeout=5, max=100
    Connection: Keep-Alive
    {"Message":"No HTTP resource was found that matches the request URI 'dev.net.ie/api/pay/.html?HouseNumber=9&AddressLine
    =The+Gardens<script>alert(1)</script>&AddressLine2=foxlodge+woods&TownName=Meath'.","MessageDetail":"No type was found
-   that matches the controller named 'pay'."}   <-- 脚本中的alert会执行
+   that matches the controller named 'pay'."}   <-- 脚本中的alert会执行
 ```
 
 好的HTTP响应：
@@ -136,8 +136,8 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
    HTTP/1.1 200
    Date: Wed, 06 Feb 2013 10:28:54 GMT
    Server: Microsoft-IIS/7.5....
-   Content-Type: application/json; charset=utf-8 <--好
-   .....
+   Content-Type: application/json; charset=utf-8 <--好
+   .....
    .....
 ```
 一个常见的错误示例如下：
@@ -175,21 +175,21 @@ var initData = JSON.parse(dataElement.textContent);
 规则4适用于将不可信数据插入到style样式表或者内敛style属性中。CSS出人意料的强大，可以用于许多攻击。因此，仅在属性值中使用不可信数据，而不要在其他位置使用，这一点非常的重要。应该避免将不可信数据插入到复杂的属性之中，如 URL、behavior以及自定义的-moz-binding类属性。也不应该把不可信数据插入到可执行JavaScript代码的IE表达式属性中。
 
 ```
- <style>selector { property : ...在这里插入不可信数据之前进行转义...; } </style>     属性值
- <style>selector { property : "...在这里插入不可信数据之前进行转义..."; } </style>   属性值
- <span style="property : ...在这里插入不可信数据之前进行转义...">text</span>         属性值
+ <style>selector { property : ...在这里插入不可信数据之前进行转义...; } </style>     属性值
+ <style>selector { property : "...在这里插入不可信数据之前进行转义..."; } </style>   属性值
+ <span style="property : ...在这里插入不可信数据之前进行转义...">text</span>         属性值
 ```
 
 请注意，有一些CSS上下文不能安全的将不可信数据作为输入——即使正确的使用了CSS转义！你要保证URL只能以http而不能以javascript开头，而且这些属性不能以 expression开头。例如：
 
 ```
-{ background-url : "javascript:alert(1)"; }  // 其他的URL类属性也是如此
-{ text-size: "expression(alert('XSS'))"; }   // 只出现在IE中
+{ background-url : "javascript:alert(1)"; }  // 其他的URL类属性也是如此
+{ text-size: "expression(alert('XSS'))"; }   // 只出现在IE中
 ```
 
 除了字母数字字符以外，使用\HH格式来转义ASCII值小于256的所有字符。不要使用像 \\" 这样的快捷转义方式，因为引号字符可能与先运行的HTML属性解析器相匹配，这些快捷转义方式也容易受到攻击者 "把转义字符进行转义" ，例如攻击者发送了一个 \\"，这样把引号转义之后就成了 \\\\"，最终允许了引号的存在。
 
-如果属性是被引号包裹的，需要使用对应的引号结束。所有的属性都应该放置到引号之中，但是程序应该具有健壮的编码来防御XSS，毕竟不可信数据可能没有放置到引号之中。未加引号的属性可以被很多字符截断，包括 [ 空格 ] % * + , - / ; < = > ^ 和 |。另外，\</style>标记将关闭样式块，即使它位于带引号的字符串中，因为HTML解析器在JavaScript解析器之前运行。请注意，对于无论引号包裹还是没有引号包裹的属性，我们建议积极的CSS编码和验证来阻止XSS攻击。
+如果属性是被引号包裹的，需要使用对应的引号结束。所有的属性都应该放置到引号之中，但是程序应该具有健壮的编码来防御XSS，毕竟不可信数据可能没有放置到引号之中。未加引号的属性可以被很多字符截断，包括 [ 空格 ] % * + , - / ; < = > ^ 和 |。另外，\</style>标记将关闭样式块，即使它位于带引号的字符串中，因为HTML解析器在JavaScript解析器之前运行。请注意，对于无论引号包裹还是没有引号包裹的属性，我们建议积极的CSS编码和验证来阻止XSS攻击。
 
 ### 2.6 规则5，将不可信数据插入到HTML URL参数值之前， 进行URL转义
 
@@ -199,7 +199,7 @@ var initData = JSON.parse(dataElement.textContent);
 <a href="http://www.somesite.com?test= ...在这里插入不可信数据之前进行转义..."> link </a>
 ```
 
-除了字母数字字符以外，使用%HH格式来转义ASCII值小于256的所有字符。URL不应该出现在不可信数据之中，因为没有好办法通过转义来防止切换出URL上下文。所有的属性都应该使用引号包裹。没有引号包裹的属性可以使用许多字符来中断，包括 [space] % * + , - / ; < = > ^ 和 | 等。请注意，在这个上下文实体编码是无效的。
+除了字母数字字符以外，使用%HH格式来转义ASCII值小于256的所有字符。URL不应该出现在不可信数据之中，因为没有好办法通过转义来防止切换出URL上下文。所有的属性都应该使用引号包裹。没有引号包裹的属性可以使用许多字符来中断，包括 [space] % * + , - / ; < = > ^ 和 | 等。请注意，在这个上下文实体编码是无效的。
 
 警告：不要使用URL编码对完整或相对URL进行编码！如果不信任的输入是要放入href，src或其他基于URL的属性，应该验证它是否指向其他协议，特别是JavaScript链接。然后应该像对待其他数据一样，根据相应的上下文对URL进行编码。例如，href属性中的URL应该是使用属性编码的。例如：
 
@@ -234,20 +234,20 @@ PolicyFactory sanitizer = Sanitizers.FORMATTING.and(Sanitizers.BLOCKS);
 String cleanResults = sanitizer.sanitize("<p>Hello, <b>World!</b>");
 ```
 
-有关OWASP Java HTML清洗策略的更多信息，请参阅 https://github.com/OWASP/java-html-sanitizer
+有关OWASP Java HTML清洗策略的更多信息，请参阅 https://github.com/OWASP/java-html-sanitizer
 
-Ruby on Rails SanitizeHelper - http://api.rubyonrails.org/classes/ActionView/Helpers/SanitizeHelper.html
+Ruby on Rails SanitizeHelper - http://api.rubyonrails.org/classes/ActionView/Helpers/SanitizeHelper.html
 
 SanitizeHelper模块提供了一套用于清理不需要的HTML元素的文本的方法。
 
 ```
-<%= sanitize @comment.body, tags: %w(strong em a), attributes: %w(href) %>
+<%= sanitize @comment.body, tags: %w(strong em a), attributes: %w(href) %>
 ```
 
 其他提供HTML清洗的库包括：
-PHP HTML Purifier - http://htmlpurifier.org/
-JavaScript/Node.js Bleach - https://github.com/ecto/bleach
-Python Bleach - https://pypi.python.org/pypi/bleach
+PHP HTML Purifier - http://htmlpurifier.org/
+JavaScript/Node.js Bleach - https://github.com/ecto/bleach
+Python Bleach - https://pypi.python.org/pypi/bleach
 
 ### 2.8 规则 7，防止 DOM-based XSS
 
