@@ -236,7 +236,7 @@ String userURL = request.getParameter( "userURL" )
 
 ### 2.7 规则6，使用专业库来清洗HTML标记
 
-如程序处理html标记时，果不可信的输入包含html，可能非常的难以验证。编码也是非常困难的，因为它会转义应该出现在输入中的所有标签。因此你需要一个可以解析和清洗HTML格式文本的库。在OWASP有几个简单易用的版本：
+如果程序处理html标记时，不可信的输入包含html，可能非常的难以验证。编码也是非常困难的，因为它会转义应该出现在输入中的所有标签。因此你需要一个可以解析和清洗HTML格式文本的库。在OWASP有几个简单易用的版本：
 
 HtmlSanitizer - https://github.com/mganss/HtmlSanitizer
 
