@@ -110,7 +110,7 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
 
 ### 2.4.1 规则 3.1 在HTML上下文中对JSON值进行HTML转义，并使用JSON.parse读取
 
-在Web 2.0世界中，需要在Javascript上下文中使用程序动态生成数据的需求是很常见的。一种策略是使用Ajax调用来获取数据，但是在有些情况下是不可行的。通常我们加载一个JSON初始化到页面中，作为一个存储多种类型数值的位置。在不破坏值的格式和内容情况下，对这些数据进行转义不是不可能的，但是却相当的棘手。
+在Web 2.0世界中，需要在Javascript上下文中使用程序动态生成数据的需求是很常见的。一种策略是使用Ajax调用来获取数据，但是在有些情况下是这种方式不可行。通常我们加载一个JSON初始化到页面中，作为一个存储多种类型数值的位置。在不破坏值的格式和内容情况下，对这些数据进行转义不是不可能的，但是却相当的棘手。
 
 确保响应的Content-Type头是application/json而不是application/html。这样可以让浏览器不误解上下文并执行插入的脚本。
 
@@ -149,7 +149,7 @@ Microsoft为.NET平台提供了一个名为[Microsoft Anti-Cross Site Scripting 
 ```
 #### 2.4.1.1 JSON 实体编码
 
-JSON编码规则可以在[输出编码规则摘要](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#Output_Encoding_Rules_Summary)中找到。请注意，我们将无法使用CSP 1.0提供的XSS保护策略。
+JSON编码规则可以在[输出编码规则摘要](https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#Output_Encoding_Rules_Summary)中找到。请注意，这种方式下我们将无法使用CSP 1.0提供的XSS保护策略。
 
 #### 2.4.1.2 HTML实体编码
 
