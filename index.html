@@ -8,11 +8,19 @@
 <body>
   <div id="app">Hello World!</div>
 
+  <a href="javascript:'\x3cimg src\x3dx onerror=alert('Barret李靖')>'">click me</a>
+
   <script type="text/javascript">
+    var encodeForHTML = $.encoder.encodeForHTML;
+    var encodeForHTMLAttribute = $.encoder.encodeForHTMLAttribute;
+    var encodeForCSS = $.encoder.encodeForCSS;
+    var encodeForURL = $.encoder.encodeForURL;
+    var encodeForJavascript = $.encoder.encodeForJavascript;
+
     var str = '<script>console.log(123);<\/script>';
-    str = $.encoder.encodeForHTML(str);
-    console.log($.encoder.encodeForHTMLAttribute('name', '<lushijie>', true));
-    console.log($.encoder.encodeForCSS('href', 'http://www.baidu.com', true));
+    str = encodeForHTML(str);
+    console.log(encodeForHTMLAttribute('name', '<lushijie>', true));
+    console.log(encodeForCSS('href', 'http://www.baidu.com', true));
     // encodeForURL
     // encodeForJavascript
     $('#app').html(str)
