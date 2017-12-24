@@ -29,32 +29,32 @@
      * @param  {[type]} string [description]
      * @return {[type]}        [description]
      */
-    var css_whitelist_classes = {
-      'default': ['-',' ','%'],
-      'color': ['#',' ','(',')'],
-      'image': ['(',')',':','/','?','&','-','.','"','=',' ']
-    };
-
-    var css_whitelist = {
-      'background': ['(',')',':','%','/','?','&','-',' ','.','"','=','#'],
-      'background-image': css_whitelist_classes['image'],
-      'background-color': css_whitelist_classes['color'],
-      'border-color': css_whitelist_classes['color'],
-      'border-image': css_whitelist_classes['image'],
-      'color': css_whitelist_classes['color'],
-      'icon': css_whitelist_classes['image'],
-      'list-style-image': css_whitelist_classes['image'],
-      'outline-color': css_whitelist_classes['color']
-    };
-
-    var unsafeKeys = {
-      // 'attr_name' : ['on[a-z]{1,}', 'style', 'href', 'src'],
-      // 'attr_val'  : ['javascript:'],
-      'css_key'   : ['behavior', '-moz-behavior', '-ms-behavior'],
-      'css_val'   : ['expression']
-    };
-
     function encodeForCSS(propName, input, omitPropertyName) {
+      var css_whitelist_classes = {
+        'default': ['-',' ','%'],
+        'color': ['#',' ','(',')'],
+        'image': ['(',')',':','/','?','&','-','.','"','=',' ']
+      };
+
+      var css_whitelist = {
+        'background': ['(',')',':','%','/','?','&','-',' ','.','"','=','#'],
+        'background-image': css_whitelist_classes['image'],
+        'background-color': css_whitelist_classes['color'],
+        'border-color': css_whitelist_classes['color'],
+        'border-image': css_whitelist_classes['image'],
+        'color': css_whitelist_classes['color'],
+        'icon': css_whitelist_classes['image'],
+        'list-style-image': css_whitelist_classes['image'],
+        'outline-color': css_whitelist_classes['color']
+      };
+
+      var unsafeKeys = {
+        // 'attr_name' : ['on[a-z]{1,}', 'style', 'href', 'src'],
+        // 'attr_val'  : ['javascript:'],
+        'css_key'   : ['behavior', '-moz-behavior', '-ms-behavior'],
+        'css_val'   : ['expression']
+      };
+
       var immune;
       if ( unsafeKeys['css_key'].indexOf(propName) > -1) {
         throw "Unsafe property name used: " + propName;
