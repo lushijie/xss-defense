@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <script src="http://lib.baomitu.com/jquery/2.2.4/jquery.min.js"></script>
+  <script src="./lib/art-template.js"></script>
+  <script src="../jquery.encoder.js"></script>
+</head>
+<body>
+  <div id="#app1"></div>
+  <script>
+    var untrustedData = 'a=123 onclick="alert(123);"';
+    // [A-Za-z0-9-_.~!*()']
+    function encodeForURL(string) {
+      return encodeURIComponent(string);
+    }
+    console.log(encodeForURL(untrustedData));
+
+    function getURLParms(){
+      var vars = [], hash;
+      var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+      for(var i = 0; i < hashes.length; i++){
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+      }
+      return vars;
+    }
+    var params = getURLParms()
+    console.log(params.word);
+  </script>
+</body>
+</html>

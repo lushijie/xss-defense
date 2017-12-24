@@ -9,19 +9,23 @@
 
   <div id="app1"></div>
   <div id="app2"></div>
+  <div id="app3"></div>
+
+  <img src="javascript:alert(234)"/>
+
 
   <script type="text/javascript">
     // 规则2，将不可信数据插入到HTML通用属性之前，进行HTML Attribute转义
 
-    var tmpl = '<div data-a={{untrustedData}}>123</div>';
-    var untrustedData = 'aui><script>console.log("12卢")<\/script>';
+    var tmpl1 = '<div data-a={{untrustedData}}>123</div>';
+    var untrustedData1 = 'aui><script>console.log("12卢")<\/script>';
 
     var renderData1 = template.render(
-      tmpl,
-      { untrustedData: untrustedData },
+      tmpl1,
+      { untrustedData: untrustedData1 },
       { escape: false }
     );
-    console.log(renderData1);
+    console.log('renderData1=>', renderData1);
     $('#app1').html(renderData1);
 
     /**
@@ -41,13 +45,27 @@
       return encoded;
     }
 
+    var tmpl2 = '<div data-a={{untrustedData}}>123</div>';
+    var untrustedData2 = 'aui><script>console.log("12卢")<\/script>';
     var renderData2 = template.render(
-      tmpl,
-      { untrustedData: encodeForHTMLAttribute(untrustedData) },
+      tmpl2,
+      { untrustedData: encodeForHTMLAttribute(untrustedData2) },
       { escape: false }
     );
-    console.log(renderData2);
+    console.log('renderData2=>', renderData2);
     $('#app2').html(renderData2);
+
+
+    // href、src、style
+    var tmpl3 = '<a href="{{untrustedData}}">Link</a>';
+    var untrustedData3 = 'javascript:alert(123)';
+    var renderData3 = template.render(
+      tmpl3,
+      { untrustedData: encodeForHTMLAttribute(untrustedData3) },
+      { escape: false }
+    );
+    console.log('renderData3=>', renderData3);
+    $('#app3').html(renderData3);
   </script>
 </body>
 </html>

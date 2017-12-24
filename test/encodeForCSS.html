@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <style type="text/css">
+    #app1:before {
+      content: 'lushi\005362';
+    }
+  </style>
+
+</head>
+<body>
+
+  <div id="app1">
+    Hello world!
+
+    <a href="javascript:alert(123);">test2</a>
+  </div>
+
+  <script src="http://lib.baomitu.com/jquery/2.2.4/jquery.min.js"></script>
+  <script src="./lib/art-template.js"></script>
+  <script src="../jquery.encoder.js"></script>
+
+  <script>
+    var untrustedData = 'lushi卢';
+
+    /**
+     * [encodeForCSS ]
+     * @param  {[type]} string [description]
+     * @return {[type]}        [description]
+     */
+    var css_whitelist_classes = {
+      'default': ['-',' ','%'],
+      'color': ['#',' ','(',')'],
+      'image': ['(',')',':','/','?','&','-','.','"','=',' ']
+    };
+
+    var css_whitelist = {
+      'background': ['(',')',':','%','/','?','&','-',' ','.','"','=','#'],
+      'background-image': css_whitelist_classes['image'],
+      'background-color': css_whitelist_classes['color'],
+      'border-color': css_whitelist_classes['color'],
+      'border-image': css_whitelist_classes['image'],
+      'color': css_whitelist_classes['color'],
+      'icon': css_whitelist_classes['image'],
+      'list-style-image': css_whitelist_classes['image'],
+      'outline-color': css_whitelist_classes['color']
+    };
+
+    var unsafeKeys = {
+      // 'attr_name' : ['on[a-z]{1,}', 'style', 'href', 'src'],
+      // 'attr_val'  : ['javascript:'],
+      'css_key'   : ['behavior', '-moz-behavior', '-ms-behavior'],
+      'css_val'   : ['expression']
+    };
+
+    function encodeForCSS(propName, input, omitPropertyName) {
+      var immune;
+      if ( unsafeKeys['css_key'].indexOf(propName) > -1) {
+        throw "Unsafe property name used: " + propName;
+      }
+
+      for ( var a=0; a < unsafeKeys['css_val'].length; a++ ) {
+        if ( input.toLowerCase().indexOf(unsafeKeys['css_val'][a]) >= 0 ) {
+          throw "Unsafe property value used: " + input;
+        }
+      }
+
+      immune = css_whitelist[propName];
+      if ( !immune ) immune = css_whitelist_classes['default'];
+
+      var encoded = '';
+      if (!omitPropertyName) {
+        for (var p = 0; p < propName.length; p++) {
+          var pc = propName.charAt(p);
+          if (!pc.match(/[a-zA-Z\-]/)) {
+            throw "Invalid Property Name specified";
+          }
+          encoded += pc;
+        }
+        encoded += ': ';
+      }
+
+      for (var i = 0; i < input.length; i++) {
+        var ch = input.charAt(i);
+        if (!ch.match(/[a-zA-Z0-9]/) && immune.indexOf(ch) === -1) {
+          var hex = input.charCodeAt(i).toString(16);
+          var pad = '000000'.substr((hex.length));
+          encoded += '\\' + pad + hex;
+        } else {
+          encoded += ch;
+        }
+      }
+      return encoded;
+    };
+
+    console.log(encodeForCSS('content', untrustedData));
+  </script>
+</body>
+</html>

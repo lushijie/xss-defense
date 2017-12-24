@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <script src="http://lib.baomitu.com/jquery/2.2.4/jquery.min.js"></script>
+  <script src="../jquery.encoder.js"></script>
+  <script src="./lib/art-template.js"></script>
+</head>
+<body>
+  <div id="app1"></div>
+  <div id="app2"></div>
+  <div id="app3"></div>
+
+  <script type="text/javascript">
+
+    // 规则3，将不可信数据插入到JavaScript数据值之前，进行JavaScript转义; onmouseover等事件程序亦如此
+    var tmpl1 = '<script>var a="{{untrustedData}}"<\/script>';
+    var untrustedData1 = 'aui卢";console.log(111);var b="';
+
+    var renderData1 = template.render(
+      tmpl1,
+      { untrustedData: untrustedData1 },
+      { escape: false }
+    );
+    console.log('renderData1=>', renderData1);
+    $('#app1').html(renderData1);
+
+
+    /**
+     * [encodeForJavascript 除字母数字字符外，请使用\xHH格式转义ASCII码小于256的所有字符]
+     * @param  {[type]} string [description]
+     * @return {[type]}        [description]
+     */
+    function encodeForJavascript(string) {
+      var encoded = '';
+      for(var i = 0; i < string.length; i++) {
+        var cc = hex = string[i];
+        if (!/[A-Za-z0-9]/.test(string[i]) && string.charCodeAt(i) < 256) {
+          hex = '\\x' + cc.charCodeAt(0).toString(16);
+        }
+        encoded += hex;
+      }
+      return encoded;
+    }
+
+    var tmpl2 = '<script>var a="{{untrustedData}}"<\/script>';
+    var untrustedData2 = 'aui卢";console.log(222);var b="';
+    var renderData2 = template.render(
+      tmpl2,
+      { untrustedData: encodeForJavascript(untrustedData2) },
+      { escape: false }
+    );
+    console.log('renderData2=>', renderData2);
+    $('#app2').html(renderData2);
+
+    /**
+     * [encodeForJavascript2 =>编码 // ' " / \n \r 6个字符]
+     * @param  {[type]} string [description]
+     * @return {[type]}        [description]
+     */
+    function encodeForJavascript2(string) {
+      var javascriptEscapeMap = {
+        '\\': '\\\\',
+        '\'': '\\x27',
+        '"': '\\x22',
+        '/': '\\/',
+        '\n': '\\n',
+        '\r': '\\r'
+      };
+      var javascriptEscapeChars = /[\\'"/\n\r]/g;
+      return ('' + string).replace(javascriptEscapeChars, function(match) {
+        return javascriptEscapeMap[match];
+      });
+    };
+
+    var tmpl3 = '<script>var a="{{untrustedData}}"<\/script>';
+    var untrustedData3 = 'aui卢";console.log(333);var b="';
+    var renderData3 = template.render(
+      tmpl3,
+      { untrustedData: encodeForJavascript2(untrustedData3) },
+      { escape: false }
+    );
+    console.log('renderData3=>', renderData3);
+    $('#app3').html(renderData3);
+  </script>
+</body>
+</html>
