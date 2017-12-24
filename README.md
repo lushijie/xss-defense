@@ -325,7 +325,7 @@ HTML 实体编码 | 把 & 转化为 `&amp;` <br> 把 < 转化为 `&lt;`  <br> �
 HTML 属性编码 | 除字母数字字符外，请使用HTML实体&#xHH;的格式编码所有字符，包括空格。（HH=十六进制值）
 URL 编码 | 标准编码，请参阅：http://www.w3schools.com/tags/ref_urlencode.asp。<br>网址编码只能用于编码参数值，而不能用于URL的整个URL或路径片段。
 JavaScript 编码 | 除字母数字字符外，请使用\uXXXX unicode转义格式（X=整数）转义所有字符。
-CSS 16进制编码 | CSS转义支持\XX和\XXXXXX。但是这种转义方式可能导致吃字符的问题(例如转义!1111,\XX1111可能导致1111被吃掉)。有两种解决方案：<br>（a）在CSS转义之后添加一个空格（将被CSS解析器忽略，例如\XX 1111）<br>（b）通过零填充使CSS转义位数饱和(例如 \000000XX)。
+CSS 16进制编码 | 除了字母数字字符以外，使用\HH格式来转义ASCII值小于256的所有字符。CSS转义支持\XX和\XXXXXX。但是这种转义方式可能导致吃字符的问题(例如转义!1111,\XX1111可能导致1111被吃掉)。有两种解决方案：<br>（a）在CSS转义之后添加一个空格（将被CSS解析器忽略，例如\XX 1111）<br>（b）通过零填充使CSS转义位数饱和(例如 \000000XX)。
 
 
 [英文原文](https://www.owasp.org/index.php/XSS_%28Cross_Site_Scripting%29_Prevention_Cheat_Sheet)
