@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <script src="http://lib.baomitu.com/jquery/2.2.4/jquery.min.js"></script>
+  <script src="../jquery.encoder.js"></script>
+  <script src="./lib/art-template.js"></script>
+</head>
+<body>
+  <div id="app1"></div>
+  <div id="app2">
+    <script>
+      var a="aui卢\x22\x3bconsole\x2elog\x28123\x29\x3bvar\x20b\x3d\x22"
+      console.log('app2:a=>', a);
+    </script>
+  </div>
+
+  <script type="text/javascript">
+    // 规则3，将不可信数据插入到JavaScript数据值之前，进行JavaScript转义; onmouseover等事件程序亦如此
+    var tmpl = '<script>var a="{{untrustedData}}"<\/script>';
+    var untrustedData = 'aui卢";console.log(123);var b="';
+
+    var renderData1 = template.render(
+      tmpl,
+      { untrustedData: untrustedData },
+      { escape: false }
+    );
+    console.log('renderData1=>', renderData1);
+    $('#app1').html(renderData1);
+
+    /**
+     * [encodeForJavascript 除字母数字字符外，请使用\xHH格式转义ASCII码小于256的所有字符]
+     * @param  {[type]} string [description]
+     * @return {[type]}        [description]
+     */
+    function encodeForJavascript(string) {
+      var encoded = '';
+      for(var i = 0; i < string.length; i++) {
+        var cc = hex = string[i];
+        if (!/[A-Za-z0-9]/.test(string[i]) && string.charCodeAt(i) < 256) {
+          hex = '\\x' + cc.charCodeAt(0).toString(16);
+        }
+        encoded += hex;
+      }
+      return encoded;
+    }
+
+    var renderData2 = template.render(
+      tmpl,
+      { untrustedData: encodeForJavascript(untrustedData) },
+      { escape: false }
+    );
+    console.log('renderData2=>', renderData2);
+    $('#app2').html(renderData2);
+
+  </script>
+</body>
+</html>

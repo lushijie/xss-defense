@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <script src="http://lib.baomitu.com/jquery/2.2.4/jquery.min.js"></script>
+  <script src="./lib/art-template.js"></script>
+</head>
+<body>
+
+  <div id="app1"></div>
+  <div id="app2"></div>
+
+  <script type="text/javascript">
+    // 规则2，将不可信数据插入到HTML通用属性之前，进行HTML Attribute转义
+
+    var tmpl = '<div data-a={{untrustedData}}>123</div>';
+    var untrustedData = 'aui><script>console.log("12卢")<\/script>';
+
+    var renderData1 = template.render(
+      tmpl,
+      { untrustedData: untrustedData },
+      { escape: false }
+    );
+    console.log(renderData1);
+    $('#app1').html(renderData1);
+
+    /**
+     * [encodeForHTMLAttribute 除了字母数字字符以外，使用 &#xHH;格式来转义ASCII值小于256所有的字符]
+     * @param  {[type]} string [description]
+     * @return {[type]}        [description]
+     */
+    function encodeForHTMLAttribute(string) {
+      var encoded = '';
+      for(var i = 0; i < string.length; i++) {
+        var cc = hex = string[i];
+        if (!/[A-Za-z0-9]/.test(string[i]) && string.charCodeAt(i) < 256) {
+          hex = '&#x' + cc.charCodeAt(0).toString(16) + ';';
+        }
+        encoded += hex;
+      }
+      return encoded;
+    }
+
+    var renderData2 = template.render(
+      tmpl,
+      { untrustedData: encodeForHTMLAttribute(untrustedData) },
+      { escape: false }
+    );
+    console.log(renderData2);
+    $('#app2').html(renderData2);
+  </script>
+</body>
+</html>
