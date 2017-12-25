@@ -9,10 +9,10 @@
 
   <div id="app1"></div>
   <div id="app2"></div>
-  <div id="app3"></div>
 
-  <img src="javascript:alert(234)"/>
-
+  <div>
+    <a href="javascript&#x3a;alert&#x28;123&#x29;">已经进行了实体编码</a>
+  </div>
 
   <script type="text/javascript">
     // 规则2，将不可信数据插入到HTML通用属性之前，进行HTML Attribute转义
@@ -33,12 +33,43 @@
      * @param  {[type]} string [description]
      * @return {[type]}        [description]
      */
-    function encodeForHTMLAttribute(string) {
+    function encodeForHTMLAttribute(attr, input) {
+      var unsafeKeys = {
+        'attr_name' : ['on[a-z]{1,}', 'style', 'href', 'src'],
+        'attr_val'  : ['javascript:'],
+      };
+
+      var attr_whitelist_classes = {
+        'default': [',','.','-','_',' ']
+      };
+
+      var attr_whitelist = {
+        'width': ['%'],
+        'height': ['%']
+      };
+
+      for ( var i=0; i < unsafeKeys['attr_name'].length; i++ ) {
+        if ( attr.toLowerCase().match(unsafeKeys['attr_name'][i]) ) {
+          throw "Unsafe attribute name used: " + attr;
+        }
+      }
+
+      for ( var a=0; a < unsafeKeys['attr_val'].length; a++ ) {
+        if ( input.toLowerCase().match(unsafeKeys['attr_val'][a]) ) {
+          throw "Unsafe attribute value used: " + input;
+        }
+      }
+
+      var immune;
+      immune = attr_whitelist[attr];
+      if ( !immune ) immune = attr_whitelist_classes['default'];
+
       var encoded = '';
-      for(var i = 0; i < string.length; i++) {
-        var cc = hex = string[i];
-        if (!/[A-Za-z0-9]/.test(string[i]) && string.charCodeAt(i) < 256) {
-          hex = '&#x' + cc.charCodeAt(0).toString(16) + ';';
+      for(var i = 0; i < input.length; i++) {
+        var ch = input[i];
+        var hex = input[i];
+        if (!/[A-Za-z0-9]/.test(input[i]) && input.charCodeAt(i) < 256 && immune.indexOf(ch) === -1) {
+          hex = '&#x' + ch.charCodeAt(0).toString(16) + ';';
         }
         encoded += hex;
       }
@@ -49,23 +80,12 @@
     var untrustedData2 = 'aui><script>console.log("12卢")<\/script>';
     var renderData2 = template.render(
       tmpl2,
-      { untrustedData: encodeForHTMLAttribute(untrustedData2) },
+      { untrustedData: encodeForHTMLAttribute('data-a', untrustedData2) },
       { escape: false }
     );
     console.log('renderData2=>', renderData2);
     $('#app2').html(renderData2);
 
-
-    // href、src、style
-    var tmpl3 = '<a href="{{untrustedData}}">Link</a>';
-    var untrustedData3 = 'javascript:alert(123)';
-    var renderData3 = template.render(
-      tmpl3,
-      { untrustedData: encodeForHTMLAttribute(untrustedData3) },
-      { escape: false }
-    );
-    console.log('renderData3=>', renderData3);
-    $('#app3').html(renderData3);
   </script>
 </body>
 </html>
