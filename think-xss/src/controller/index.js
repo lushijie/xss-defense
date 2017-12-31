@@ -1,29 +1,50 @@
 const Base = require('./base.js');
 
 module.exports = class extends Base {
-  index1Action() {
-    this.assign('a', '<script>console.log(666);</script>');
-    this.assign('b', '123123');
-    return this.display();
+  htmlAction() {
+    this.assign('a', `<script>console.log('aaa');</script>`);
+    this.assign('b', `<script>console.log('bbb);</script>`);
+    return this.display('basic/index_html');
   }
 
-  index2Action() {
-    return this.display();
+  attributeAction() {
+    this.assign('a', `" onclick="console.log(123);`);
+    this.assign('b', `" onclick="console.log(456);`);
+
+    // encode console.log(789);
+    this.assign('c', `console.log&#x28;789&#x29;&#x3b;`);
+
+    // encode javascript:console.log(666);
+    this.assign('d', `javascript&#x3a;console.log&#x28;666&#x29;&#x3b;`);
+    return this.display('basic/index_attibute');
+
   }
 
-  index3Action() {
-    return this.display();
+  javascriptAction() {
+    this.assign('a',`click')" onmouseover="console.log('mouseover');"`);
+    this.assign('b',`click')" onmouseover="console.log('mouseover');"`);
+
+    this.assign('c', `ccc1"); console.log("ccc2`);
+    this.assign('d', `ccc1"); console.log("ccc2`);
+    this.assign('e', `console.log('setTimeout')`);
+    return this.display('basic/index_javascript');
   }
 
-  index4Action() {
-    return this.display();
+  urlAction() {
+    this.assign('a', ` " onclick="alert(1)"`);
+    this.assign('b', ` " onclick="alert(1)"`);
+    this.assign('c', ` http://china.huanqiu.com/article/2017-12/11487461.html?from= " onclick="alert(1)"`);
+    return this.display('basic/index_url');
   }
 
-  index5Action() {
-    return this.display();
+  cssAction() {
+    this.assign('a', `javascript:alert('XSS');`);
+    this.assign('b', `expression(alert(/xss/)`);
+    return this.display('basic/index_css');
   }
 
   index6Action() {
+    this.cookie('a', 'test123123');
     return this.display();
   }
 

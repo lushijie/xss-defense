@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>XSS示例</title>
+  <style type="text/css">
+    .div-group {
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px dashed #f00;
+    }
+    .div-group a {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- 在URL的路径或者参数: urlencode -->
+  <!-- 编码规则： encodeURIComponent -->
+  <div class="div-group">
+    <a href="http://china.huanqiu.com/article/2017-12/11487461.html?from={{a}}" target="_blank">不转码链接</a>
+
+    <a href="http://china.huanqiu.com/article/2017-12/11487461.html?from={{b|encodeForURL}}" target="_blank">encodeForURL转码链接</a>
+
+    <!-- <a href="{{c|encodeForHTMLAttibuteSimple}}" target="_blank">encodeForHTMLAttibute转码链接</a> -->
+  </div>
+</body>
+</html>

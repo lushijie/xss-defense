@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>XSS示例</title>
+  <style type="text/css">
+    .div-group {
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px dashed #f00;
+    }
+  </style>
+</head>
+<body>
+  <!-- 在HTML标签中输出: 将不可信数据放入到HTML标签内的时候进行HTML编码 -->
+  <!-- 编码规则：将 & < > " ' / 转义为实体字符 -->
+  <!-- HTML编码表示方式： 十进制、十六进制、实体 -->
+
+  <div class="div-group a">
+    This is in a! {{ a }}
+  </div>
+
+  <div class="div-group b">
+    This is in b! {{ b|encodeForHTML }}
+  </div>
+
+  <div class="div-group c">
+    This is in c!
+    <ol>
+      <li>&#38;</li>
+      <li>&#38</li>
+      <li>&#x26;</li>
+      <li>&#x26</li>
+      <li>&amp;</li>
+      <li>&amp</li>
+    </ol>
+  </div>
+</body>
+</html>

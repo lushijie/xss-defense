@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>XSS示例</title>
+  <style type="text/css">
+    .div-group {
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px dashed #f00;
+    }
+    .p1 {
+      background-image: url({{a}});
+    }
+    .p2 {
+      background-image: {{b}};
+    }
+  </style>
+</head>
+<body>
+  <div class="div-group">
+    <div class="p1">Hello World1!</div>
+    <div class="p2">Hello World2!</div>
+  </div>
+</body>
+</html>

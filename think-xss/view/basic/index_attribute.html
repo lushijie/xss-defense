@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>XSS示例</title>
+  <style type="text/css">
+    .div-group {
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px dashed #f00;
+    }
+  </style>
+</head>
+<body>
+  <!-- 在HTML属性中输出： 将不可信数据放入典型的属性值里，如width,name和value等进行HTML属性编码-->
+  <!-- 编码规则：除了字母数字字符以外，使用 &#xHH;(或者命名实体)来转义ASCII值小于256所有的字符 -->
+
+  <div class="div-group">
+    <p class="{{a}}">This is in a!</p>
+  </div>
+
+  <div class="div-group">
+    <p class="{{b|encodeForHTMLAttibute('class')}}">This is in b!</p>
+  </div>
+
+  <!-- 事件处理程序如onmouseover，onclick等此规则不适用 -->
+  <div class="div-group">
+    <!-- console.log(789); -->
+    <p onclick="{{c}}">This is in c!</p>
+  </div>
+
+  <!-- 这个规则不应该用于复杂属性：href、src、style -->
+  <div class="div-group">
+    <!-- javascript:console.log(666); -->
+    <a href="{{d}}">This is in d!</a>
+  </div>
+</body>
+</html>
