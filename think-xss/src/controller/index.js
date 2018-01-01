@@ -53,6 +53,8 @@ module.exports = class extends Base {
   }
 
   index8Action() {
+    this.assign('a', '安');
+    this.assign('b', `java&#115;cript:alert(1)`);
     return this.display();
   }
 
