@@ -45,11 +45,11 @@ module.exports = class extends Base {
 
   httponlyAction() {
     this.cookie('abc', 'test');
-    return this.display('index_httponly');
+    return this.display('advance/index_httponly');
   }
 
   filterhtmlAction() {
-    return this.display('index_filterhtml');
+    return this.display('advance/index_filterhtml');
   }
 
   index8Action() {
