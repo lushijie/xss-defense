@@ -265,5 +265,99 @@ if (userData==="location") {
 
 如果JavaScript DOM中字符集没有明确定义，在DOM中URL编码的时候要注意字符集编码的问题。
 
+### 指导规则8-使用object[x]操作属性时限制属性名称
 
-###
+换句话说有些属性的属性值可以为不可信数据。例如：
+
+```js
+var myMapType = {};
+myMapType[<%=untrustedData%>] = "moreUntrustedData";
+```
+尽管开发者上述代码是想是myMapType对象添加额外的键值元素。但是这可能被攻击者用来破坏myMapType对象的内部和外部属性。
+
+### 指导规则9-在ECMAScript 5环境或沙箱中运行JavaScript
+
+在ECMAScript 5环境或沙盒中运行JavaScript，使JavaScript API更难受到攻击
+
+### 指导规则10-不要使用eval() 把JSON数据转化为一个基础的JavaScript对象
+
+不要使用eval() 把JSON数据转化为一个基础的JavaScript对象，使用JSON.toJSON() 和 JSON.parse()
+
+## 与基于DOM的XSS相关的常见问题
+
+### 复杂的上下文
+
+在很多情况下，上下文并不是那么直接了当的：
+
+```
+<a href="javascript:myFunction('<%=untrustedData%>', 'test');">Click Me</a>
+ ...
+<script>
+Function myFunction (url,name) {
+    window.location = url;
+}
+</script>
+```
+
+上面的例子中，不可信数据在是a标签的href中，其中href 使用了javascript:协议，然后把不可信数据传递给了myFuction的 window.location。因为因为数据是在JavaScript 中引入的并且传递给了URL子上下文，这里服务端应该进行如下正确的编码：
+
+```
+<a href="javascript:myFunction('<%=Encoder.encodeForJS( Encoder.encodeForURL(untrustedData)) %>', 'test');">Click Me</a>
+ ...
+```
+
+或者，如果你将ECMAScript 5与immutable的JavaScript客户端编码库一起使用，则可以执行以下操作:
+
+```
+<!--server side URL encoding has been removed.  Now only JavaScript encoding on server side. -->
+<a href="javascript:myFunction('<%=Encoder.encodeForJS(untrustedData)%>', 'test');">Click Me</a>
+ ...
+<script>
+Function myFunction (url,name) {
+    var encodedURL = ESAPI4JS.encodeForURL(url);  //URL encoding using client-side scripts
+    window.location = encodedURL;
+}
+</script>
+```
+
+## 编码库的不一致性
+
+有一些开源的编码库：
+
+1. ESAPI
+2. Apache Commons String Utils
+3. Jtidy
+4. 公司自定义实现
+
+有些使用黑名单策略，有一些编码 ‘<’  ，‘>’等重要的字符。ESAP是为数不多的采用白名单方式工作并且编码所有的非数字字母的库。使用能够理解哪些字符可用于利用各自上下文中的漏洞的编码库是非常重要的。
+
+## 编码误解
+
+只使用HTML编码并不能解决XSS。如下仍可以运行
+
+<a href="javascript&#x3a;alert&#x28;123&#x29;">已经进行了实体编码</a>
+
+使用DOM元素的value属性检索编码时，编码会丢失
+
+```
+<form name="myForm" ...>
+  <input type="text" name="lName" value="<%=Encoder.encodeForHTML(last_name)%>">
+ ...
+</form>
+<script>
+  var x = document.myForm.lName.value;  //when the value is retrieved the encoding is reversed
+  document.writeln(x);  //any code passed into lName is now executable.
+</script>
+```
+
+## 通常安全的方法
+
+innerText被认为是安全的属性的一个例子。一些论文或指南主张用它作为innerHTML的替代方法来减轻innerHTML中的XSS。但是，根据script标签的 innerTex可以执行代码。另外请注意，innerText不是标准的，在FireFox中不受支持。
+
+```
+<script>
+ var tag = document.createElement("script");
+ tag.innerText = "<%=untrustedData%>";  //executes code
+</script>
+```
+
