@@ -213,7 +213,7 @@ document.body.appendChild(x);
 它做同样的事情，但是这一次它不容易受基于DOM的XSS漏洞影响。
 
 
-## JavaScript开发安全应用程序指南
+## 2. JavaScript开发安全应用程序指南
 
 基于DOM的XSS由于其攻击面大，浏览器缺乏标准化，因此非常难以减轻攻击。以下指南旨在为开发人员在开发基于Web的JavaScript应用程序（Web 2.0）时提供指导，以避免XSS。
 
@@ -244,9 +244,41 @@ document.writeln(...);
 
 ### 指导规则5-避免对不可信数据隐式执行eval操作的方法
 
+下面的例子说明了如何使用闭包来避免重复的JavaScript编码：
 
+#### 使用闭包
+```
+setTimeout((function(param) {
+  return function() {
+    customFunction(param);
+  }
+})("<%=Encoder.encodeForJS(untrustedData)%>"), y);
+```
 
+#### 另一种选择是N级编码：
 
+如果你的代码如下，你需要进行两次Javasript编码：
+
+```
+setTimeout("customFunction('<%=doubleJavaScriptEncodedData%>', y)");
+function customFunction (firstName, lastName)
+  alert("Hello" + firstName + " " + lastNam);
+}
+```
+在执行过程中，单引号中的doubleJavaScriptEncodedData进行第一次解码，然后setTimeout()的隐式eval()进行另一次JavaScript解码，再把正确的值传递给customFunction。这里只需要进行两次编码的原因是，
+customFunction函数本身不会将输入传递给另一个隐式或显式调用eval()的方法, 如果将“firstName”传递给隐式或显式调用eval,则这里需要三次编码。
+
+值得注意的是，可以根据在传递给if之前所经过的evals的数量来判断JavaScript代码应该使用双重还是三重编码。
+如果 'A' 是双重编码，如下的检查将会返回false：
+
+```
+ var x = "doubleJavaScriptEncodedA";  //\u005c\u0075\u0030\u0030\u0034\u0031
+ if (x == "A") {
+    alert("x is A");
+ } else if (x == "\u0041") {
+    alert("This is what pops");
+ }
+```
 
 ### 指导规则6-不可信数据的使用限制在操作符右侧
 
@@ -283,7 +315,7 @@ myMapType[<%=untrustedData%>] = "moreUntrustedData";
 
 不要使用eval() 把JSON数据转化为一个基础的JavaScript对象，使用JSON.toJSON() 和 JSON.parse()
 
-## 与基于DOM的XSS相关的常见问题
+## 3. 与基于DOM的XSS相关的常见问题
 
 ### 复杂的上下文
 
@@ -320,7 +352,7 @@ Function myFunction (url,name) {
 </script>
 ```
 
-## 编码库的不一致性
+### 编码库的不一致性
 
 有一些开源的编码库：
 
@@ -331,7 +363,7 @@ Function myFunction (url,name) {
 
 有些使用黑名单策略，有一些编码 ‘<’  ，‘>’等重要的字符。ESAP是为数不多的采用白名单方式工作并且编码所有的非数字字母的库。使用能够理解哪些字符可用于利用各自上下文中的漏洞的编码库是非常重要的。
 
-## 编码误解
+### 编码误解
 
 只使用HTML编码并不能解决XSS。如下仍可以运行
 
@@ -350,7 +382,7 @@ Function myFunction (url,name) {
 </script>
 ```
 
-## 通常安全的方法
+### 通用安全的方法
 
 innerText被认为是安全的属性的一个例子。一些论文或指南主张用它作为innerHTML的替代方法来减轻innerHTML中的XSS。但是，根据script标签的 innerTex可以执行代码。另外请注意，innerText不是标准的，在FireFox中不受支持。
 
