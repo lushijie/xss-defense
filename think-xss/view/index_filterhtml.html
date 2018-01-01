@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>New ThinkJS Application</title>
+  <script src="http://lib.baomitu.com/jquery/2.2.4/jquery.min.js"></script>
+  <script src="/static/js/xss.js"></script>
+</head>
+<body>
+  <div class="p1"></div>
+
+  <!-- https://github.com/leizongmin/js-xss -->
+  <script type="text/javascript">
+    var options = {
+      whiteList: {
+        p: ["style", "title", "target"]
+      },
+      stripIgnoreTagBody: true
+    };
+    var untrustedData = '<p style="color: #f00;">123</p><script>alert("xss");<\/script>';
+    var html = filterXSS(untrustedData, options);
+    $('.p1').html(html);
+  </script>
+</body>
+</html>

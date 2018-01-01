@@ -43,13 +43,13 @@ module.exports = class extends Base {
     return this.display('basic/index_css');
   }
 
-  index6Action() {
-    this.cookie('a', 'test123123');
-    return this.display();
+  httponlyAction() {
+    this.cookie('abc', 'test');
+    return this.display('index_httponly');
   }
 
-  index7Action() {
-    return this.display();
+  filterhtmlAction() {
+    return this.display('index_filterhtml');
   }
 
   index8Action() {
