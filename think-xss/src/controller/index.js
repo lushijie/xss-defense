@@ -24,8 +24,8 @@ module.exports = class extends Base {
     this.assign('a',`click')" onmouseover="console.log('mouseover');"`);
     this.assign('b',`click')" onmouseover="console.log('mouseover');"`);
 
-    this.assign('c', `ccc1"); console.log("ccc2`);
-    this.assign('d', `ccc1"); console.log("ccc2`);
+    this.assign('c', `ccc1'); console.log('ccc2`);
+    this.assign('d', `ccc1'); console.log('ccc2`);
     this.assign('e', `console.log('setTimeout')`);
     return this.display('basic/index_javascript');
   }
@@ -59,6 +59,16 @@ module.exports = class extends Base {
   }
 
   index9Action() {
+    this.assign('a', `<div style="color: #f00" onclick="console.log(123);">
+      Hello
+    </div>`);
+    return this.display();
+  }
+
+  index10Action() {
+    this.assign('a', `<div style="color: #f00" onclick="console.log(123);">
+      Hello
+    </div>`);
     return this.display();
   }
 };

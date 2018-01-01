@@ -9,10 +9,6 @@
 <body>
   <!-- 在执行上下文中，将不可信数据插入HTML子上下文之前，先进行HTML转义然后JavaScript转义 -->
 
-  <p id="p1"></p>
-  <script type="text/javascript">
-    document.getElementById('p1').innerHTML = '{{a|encodeForHTML|encodeForJavascriptSimple}}';
-    document.write('{{a|encodeForHTML|encodeForJavascriptSimple}}');
-  </script>
+  {{a|encodeForHTML}}
 </body>
 </html>

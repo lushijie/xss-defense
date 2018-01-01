@@ -2,7 +2,7 @@
 * @Author: lushijie
 * @Date:   2017-12-29 09:34:00
 * @Last Modified by:   lushijie
-* @Last Modified time: 2017-12-31 19:22:56
+* @Last Modified time: 2018-01-01 18:04:39
 */
 const nunjucks = require('think-view-nunjucks');
 const path = require('path');
@@ -22,39 +22,29 @@ module.exports = {
     },
     beforeRender: (env, nunjucks, config) => {
       env.addFilter('encodeForHTML', function(str, kwargs){
-        let htmlEscapeMap = {
-         '&': '&amp;',  // & in escaped code
-         '<': '&lt;',   // DEC=> &#60; HEX=> &#x3c; Entity=> &lt;
-         '>': '&gt;',
-         '"': '&quot;',
-         "'": '&#x27;', // &apos; 不推荐，因为它不在HTML规范中
-         '/': '&#x2F;'  // 闭合标签
-        };
-        let htmlEscapeChars = /[&<>"'\/]/g;
-        return ('' + str).replace(htmlEscapeChars, function(match) {
-         return htmlEscapeMap[match];
-        });
+        return ('' + str)
+          .replace(/&/g, '&amp;')    // & in escaped code
+          .replace(/</g, '&lt;')     // DEC=> &#60; HEX=> &#x3c; Entity=> &lt;
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#x27;')   // &apos; 不推荐，因为它不在HTML规范中
+          .replace(/\//g, '&#x2F;'); // 闭合标签
       });
 
       env.addFilter('encodeForJavascriptSimple', function(str, kwargs){
-        let javascriptEscapeMap = {
-          '\\': '\\\\',
-          '\'': '\\x27',
-          '"': '\\x22',
-          '/': '\\/',
-          '\n': '\\n',
-          '\r': '\\r'
-        };
-        let javascriptEscapeChars = /[\\'"/\n\r]/g;
-        return ('' + str).replace(javascriptEscapeChars, function(match) {
-          return javascriptEscapeMap[match];
-        });
+        return ('' + str)
+          .replace(/\\/g, '\\\\')
+          .replace(/'/g, '\\x27')
+          .replace(/"/g, '\\x22')
+          .replace(/\//g, '\\/')
+          .replace(/\n/g, '\\n')
+          .replace(/\r/g, '\\r');
       });
 
       env.addFilter('encodeForJavascript', function(str, kwargs) {
-        var encoded = '';
-        for(var i = 0; i < str.length; i++) {
-          var cc = hex = str[i];
+        let encoded = '';
+        for(let i = 0; i < str.length; i++) {
+          let cc = hex = str[i];
           if (!/[A-Za-z0-9]/.test(str[i]) && str.charCodeAt(i) < 256) {
             hex = '\\x' + cc.charCodeAt().toString(16);
           }

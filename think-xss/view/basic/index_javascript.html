@@ -30,16 +30,17 @@
 
   <!-- encodeForJavascript避免攻击 -->
   <div class="div-group">
-    <p onclick="console.log('{{b|encodeForJavascript}}')">
+    <p onclick="console.log('{{b|encodeForJavascriptSimple}}')">
       This is in b!
     </p>
   </div>
 
   <script>
     console.log('{{c}}');
-    console.log('{{d|encodeForJavascript}}');
+    console.log('{{d|encodeForJavascriptSimple}}');
+
     // 有些JavaScript函数不能安全的使用不可信数据作为输入——即便是进行JavaScript转义
-    setTimeout('{{e|encodeForJavascript}}', 1000);
+    setTimeout('{{e|encodeForJavascriptSimple}}', 1000);
   </script>
 </body>
 </html>
