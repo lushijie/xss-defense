@@ -1,11 +1,33 @@
 const Base = require('./base.js');
 
 module.exports = class extends Base {
-  htmlAction() {
+
+  index1Action() {
     this.assign('a', `<script>console.log('aaa');</script>`);
     this.assign('b', `<script>console.log('bbb);</script>`);
-    return this.display('basic/index_html');
+    return this.display('basic/index_index1');
   }
+
+
+  // 反射型XSS
+  index11Action() {
+    // http://127.0.0.1:8360/index/index11?name=%3Cscript%3Econsole.log(123)%3C/script%3E
+    this.assign('name', this.get('name') || '空');
+
+    // http://127.0.0.1:8360/index/index11?id=123);console.log(23
+    this.assign('id', this.get('id') || '空');
+    return this.display();
+  }
+
+  // 存储型XSS
+  //
+  //
+  // DOM-based XSS
+  index12Action() {
+    return this.display();
+  }
+
+
 
   attributeAction() {
     this.assign('a', `" onclick="console.log(123);`);
@@ -66,6 +88,27 @@ module.exports = class extends Base {
   }
 
   index10Action() {
+    console.log(this.get('name'));
+    return this.display();
+  }
+
+
+
+  index13Action() {
+    this.assign('a', `<div style="color: #f00" onclick="console.log(123);">
+      Hello
+    </div>`);
+    return this.display();
+  }
+
+  index14Action() {
+    this.assign('a', `<div style="color: #f00" onclick="console.log(123);">
+      Hello
+    </div>`);
+    return this.display();
+  }
+
+  index15Action() {
     this.assign('a', `<div style="color: #f00" onclick="console.log(123);">
       Hello
     </div>`);

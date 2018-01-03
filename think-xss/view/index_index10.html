@@ -7,8 +7,33 @@
   </style>
 </head>
 <body>
-  <!-- 在执行上下文中，将不可信数据插入HTML子上下文之前，先进行HTML转义然后JavaScript转义 -->
+  <script type="text/javascript">
+    // DOM-based XSS 基于文档对象模型的一种漏洞
+    // DOM-based XSS，输出点在DOM，通过URL传入参数去控制触发，反射型一种
+    // 存储型XSS, 就是存入了数据库，再取出来导致的xss
+    // 反射型XSS，通过url控制了页面的输出
+    //
+    // document.location
+    // document.URL
+    // document.URLUnencoded
+    // document.referrer
+    // window.location
+    //
+    // document.write()
+    // document.writeln()
+    // document.boby.innerHtml
+    // eval()
+    // window.execScript()
+    // window.setInterval()
+    // window.setTimeout()
+    //
+    // document.location
+    // document.URL
+    // document.open()
+    // window.location.href
+    // window.navigate()
+    // window.open
+  </script>
 
-  {{a|encodeForHTML}}
 </body>
 </html>

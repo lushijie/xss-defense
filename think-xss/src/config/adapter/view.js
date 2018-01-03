@@ -2,7 +2,7 @@
 * @Author: lushijie
 * @Date:   2017-12-29 09:34:00
 * @Last Modified by:   lushijie
-* @Last Modified time: 2018-01-01 18:04:39
+* @Last Modified time: 2018-01-03 15:55:26
 */
 const nunjucks = require('think-view-nunjucks');
 const path = require('path');
@@ -56,8 +56,7 @@ module.exports = {
       env.addFilter('encodeForHTMLAttibuteSimple', function(str, kwargs){
         let encoded = '';
         for(let i = 0; i < str.length; i++) {
-          let ch = str[i];
-          let hex = str[i];
+          let ch = hex = str[i];
           if (!/[A-Za-z0-9]/.test(str[i]) && str.charCodeAt(i) < 256) {
             hex = '&#x' + ch.charCodeAt(0).toString(16) + ';';
           }
