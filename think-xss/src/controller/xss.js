@@ -9,6 +9,11 @@ module.exports = class extends Base {
     return this.display('basic/index_index1');
   }
 
+  // adance html
+  index1_1Action() {
+    return this.display('basic/index_index1_1');
+  }
+
   // attribute
   index2Action() {
     this.assign('a', `a" onclick="console.log(123);`);
@@ -51,80 +56,27 @@ module.exports = class extends Base {
     return this.display('basic/index_index5');
   }
 
+  // httponly
+  index6Action() {
+    this.cookie('test', 'lushijie');
+    return this.display('basic/index_index6');
+  }
 
-
-  // 反射型XSS
-  index11Action() {
+  index7Action() {
     // http://127.0.0.1:8360/index/index11?name=%3Cscript%3Econsole.log(123)%3C/script%3E
     this.assign('name', this.get('name') || '空');
 
     // http://127.0.0.1:8360/index/index11?id=123);console.log(23
     this.assign('id', this.get('id') || '空');
-    return this.display();
-  }
-
-  // 存储型XSS
-  //
-  //
-  // DOM-based XSS
-  index12Action() {
-    return this.display();
-  }
-
-
-
-
-
-
-
-
-  httponlyAction() {
-    this.cookie('abc', 'test');
-    return this.display('advance/index_httponly');
-  }
-
-  filterhtmlAction() {
-    return this.display('advance/index_filterhtml');
+    return this.display('basic/index_index7');
   }
 
   index8Action() {
-    this.assign('a', '安');
-    this.assign('b', `java&#115;cript:alert(1)`);
-    return this.display();
+    return this.display('basic/index_index8');
   }
 
+  // 反射型XSS
   index9Action() {
-    this.assign('a', `<div style="color: #f00" onclick="console.log(123);">
-      Hello
-    </div>`);
-    return this.display();
-  }
-
-  index10Action() {
-    console.log(this.get('name'));
-    return this.display();
-  }
-
-
-
-  index13Action() {
-    this.assign('a', `<div style="color: #f00" onclick="console.log(123);">
-      Hello
-    </div>`);
-    return this.display();
-  }
-
-  index14Action() {
-    this.assign('a', `<div style="color: #f00" onclick="console.log(123);">
-      Hello
-    </div>`);
-    return this.display();
-  }
-
-  index15Action() {
-    this.assign('a', `<div style="color: #f00" onclick="console.log(123);">
-      Hello
-    </div>`);
-    return this.display();
+    return this.display('basic/index_index9');
   }
 };
