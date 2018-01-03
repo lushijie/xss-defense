@@ -10,6 +10,7 @@
       border: 1px dashed #f00;
     }
   </style>
+  <script src="http://lib.baomitu.com/jquery/2.2.4/jquery.js"></script>
 </head>
 <body>
   <!-- script标签中，事件中输出：将不可信数据插入到JavaScript数据值之前，进行JavaScript转义 -->
@@ -24,14 +25,14 @@
    <!-- xss 攻击 -->
   <div class="div-group">
     <p onclick="console.log('{{a}}')">
-      This is in a!
+      1. 事件属性中，XSS攻击，注入了mouseover
     </p>
   </div>
 
   <!-- encodeForJavascript避免攻击 -->
   <div class="div-group">
     <p onclick="console.log('{{b|encodeForJavascriptSimple}}')">
-      This is in b!
+      2. 事件属性中，JavaScript编码解决XSS
     </p>
   </div>
 

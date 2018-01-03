@@ -2,7 +2,7 @@
 * @Author: lushijie
 * @Date:   2017-12-29 09:34:00
 * @Last Modified by:   lushijie
-* @Last Modified time: 2018-01-03 15:55:26
+* @Last Modified time: 2018-01-03 16:36:35
 */
 const nunjucks = require('think-view-nunjucks');
 const path = require('path');
@@ -56,7 +56,7 @@ module.exports = {
       env.addFilter('encodeForHTMLAttibuteSimple', function(str, kwargs){
         let encoded = '';
         for(let i = 0; i < str.length; i++) {
-          let ch = hex = str[i];
+          let ch = hex =str[i];
           if (!/[A-Za-z0-9]/.test(str[i]) && str.charCodeAt(i) < 256) {
             hex = '&#x' + ch.charCodeAt(0).toString(16) + ';';
           }
@@ -82,13 +82,15 @@ module.exports = {
 
         for ( let i = 0; i < unsafeKeys['attr_name'].length; i++ ) {
           if ( attr.toLowerCase().match(unsafeKeys['attr_name'][i]) ) {
-            throw "Unsafe attribute name used: " + attr;
+            console.warn("Unsafe attribute name used: " + attr);
+            // throw "Unsafe attribute name used: " + attr;
           }
         }
 
         for ( let n = 0; n < unsafeKeys['attr_val'].length; n++ ) {
           if ( str.toLowerCase().match(unsafeKeys['attr_val'][n]) ) {
-            throw "Unsafe attribute value used: " + str;
+            console.warn("Unsafe attribute value used: " + str);
+            // throw "Unsafe attribute value used: " + str;
           }
         }
 
