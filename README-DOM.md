@@ -417,4 +417,3 @@ innerText被认为是安全的属性的一个例子。一些论文或指南主�
  tag.innerText = "<%=untrustedData%>";  //executes code
 </script>
 ```
-
