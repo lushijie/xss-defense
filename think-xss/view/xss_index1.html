@@ -18,15 +18,16 @@
   <!-- HTML编码表示方式： 十进制、十六进制、实体 -->
 
   <div class="div-group a">
-    1. XSS注入 {{ a }}
+    1. 未进行 HTML 编码： {{ a }}
   </div>
 
   <div class="div-group b">
-    2. HTML 编码{{ b|encodeForHTML }}
+    2. HTML 编码之后： {{ b|encodeForHTML }}
   </div>
 
   <div class="div-group c">
     3. HTML编码格式
+    <!-- 编码表 http://www.howtocreate.co.uk/sidehtmlentity.html -->
     <ol>
       <li>&#38;</li>
       <li>&#38</li>

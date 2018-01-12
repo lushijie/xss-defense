@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>XSS 示例</title>
+</head>
+<body>
+  <script type="text/javascript">
+    function getCookie(name)
+    {
+      var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+      if(arr=document.cookie.match(reg))
+        return unescape(arr[2]);
+      else
+        return null;
+    }
+    alert(getCookie('name') || '不存在');
+  </script>
+</body>
+</html>

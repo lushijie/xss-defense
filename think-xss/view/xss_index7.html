@@ -6,11 +6,12 @@
 </head>
 <body>
 
-  <div>
-    {{ name }}
-  </div>
+  <div>{{ name }}</div>
 
   <script type="text/javascript">
+    // XSS 通常出现在网站的搜索栏、用户登录口等地方，常用来窃取客户端 Cookies 或进行钓鱼欺骗。
+    // 反射型 XSS 的利用一般是攻击者通过特定手法（如电子邮件），诱使用户去访问一个包含恶意代码的 URL
+
     console.log({{id}});
     // console.log({{id|encodeForJavascriptSimple}}); // encodeForJavascript 语法错误
     console.log('{{id|encodeForJavascriptSimple}}');

@@ -17,17 +17,16 @@
   <!-- 编码规则：除了字母数字字符以外，使用 &#xHH;(或者命名实体)来转义ASCII值小于256所有的字符 -->
 
   <div class="div-group">
-    <p class="{{a}}">1. HTML Attribute XSS</p>
+    <p class="{{a}}">1. 未进行 HTML Attribute 编码</p>
   </div>
 
   <div class="div-group">
-    <p class="{{b|encodeForHTMLAttibuteSimple}}">2. HTML Attribute 编码</p>
+    <p class="{{b|encodeForHTMLAttibuteSimple}}">2. 进行 HTML Attribute 编码</p>
   </div>
 
   <!-- 事件处理程序如onmouseover，onclick等此规则不适用 -->
   <div class="div-group">
-    <p onclick="{{c1|encodeForHTMLAttibuteSimple}}">3.1 事件属性编码无效</p>
-    <p onclick="{{c2}}">3.2 事件属性编码无效</p>
+    <p onclick="{{c1|encodeForHTMLAttibuteSimple}}">3.1 对于事件属性，HTML Attribute 编码无效</p>
   </div>
 
   <!-- 这个规则不应该用于复杂属性：href、src、style -->
@@ -36,9 +35,9 @@
       <li>
         <a href="{{d1|encodeForHTMLAttibuteSimple}}"> 4.1 此条编码规则不适用于 href、src、style 等复杂属性</a>
       </li>
-      <li>
+      <!-- <li>
         <a href="{{d2}}">4.2 此条编码规则不适用于 href、src、style 等复杂属性</a>
-      </li>
+      </li> -->
       <li>
         <a href="{{d3 | encodeForHTMLAttibute('href')}}">4.3 HTML Attribute 编码加强版</a>
       </li>

@@ -18,6 +18,10 @@
   </style>
 </head>
 <body>
+  <!-- 适用于将不可信数据插入到style样式表或者内敛style属性中 -->
+  <!-- 除了字母数字字符以外，使用\HH格式来转义ASCII值小于256的所有字符 补位 \XXXXXX -->
+  <!-- 应该避免将不可信数据插入到复杂的属性之中，如 URL、behavior以及自定义的-moz-binding类属性。 -->
+
   <div class="div-group">
     <div class="p1">Hello World1!</div>
     <div class="p2">Hello World2!</div>

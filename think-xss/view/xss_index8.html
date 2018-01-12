@@ -2,10 +2,13 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>New ThinkJS Application</title>
+  <title>XSS 示例</title>
 </head>
 <body>
   <script type="text/javascript">
+    var a = decodeURIComponent(document.URL);
+    document.write(a.substring(a.indexOf("a=")+2,a.length));
+
     // DOM-based XSS 基于文档对象模型的一种漏洞
     // DOM-based XSS，输出点在DOM，通过URL传入参数去控制触发，反射型一种
     // 存储型XSS, 就是存入了数据库，再取出来导致的xss
@@ -32,5 +35,6 @@
     // window.navigate()
     // window.open
   </script>
+
 </body>
 </html>
